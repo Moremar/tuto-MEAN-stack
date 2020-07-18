@@ -17,12 +17,12 @@ Setup
 -----
 
 - Install NodeJS from nodejs.org (containing NPM).
-  If already installed, get the latest stable version : 
+  If already installed, get the latest stable version :
      $>  sudo npm install npm@latest -g
      $>  sudo npm install n -g
      $>  sudo n stable
 
-- Install Angular CLI :  
+- Install Angular CLI :
      $>  npm install @angular/cli -g
   If already installed, update it to the latest version :
      $>  npm outdated -g
@@ -34,8 +34,13 @@ Setup
 - Open it in Visual Studio Code.
   If not installed yet, install the Extensions :
       - Angular Essentials  -> bundle of extensions for Angular parsing
-      - Material Icon Theme -> better icons for each file type 
+      - Material Icon Theme -> better icons for each file type
 
+- Angular Material
+  Pre-defined set of Angular components based on Google material design (buttons / menu ...)
+  https://material.angular.io/
+  Install and configure in our project (dowwnload node module, add the imports/links) with :
+     $>  ng add @angular/material
 
 Angular
 -------
