@@ -9,6 +9,7 @@ INTRODUCTION
 The MEAN stack is a set of technologies that lets us build full web applications :
 M : MongoDB for data persistence
 E : ExpressJS (NodeJS server side framework)
+    It applies a succession of middlewares to incoming requests and send a response.
 A : Angular for the front-end
 N : NodeJS for the backend
 
@@ -62,6 +63,12 @@ SETUP
      $>  npm install --save-dev nodemon
   Then start the server with :
      $>  nodemon server.js
+
+- Express framework
+     $>  npm install --save express
+  We create an app.js file under /backend that represents our Express app.
+  In that file we define all the middleware of the app.
+  It is imported and started from server.js.
 
 
 ANGULAR
