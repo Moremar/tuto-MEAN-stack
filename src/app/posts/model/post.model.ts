@@ -1,3 +1,4 @@
+// Post representation in the Angular app
 export class Post {
-    constructor(public title: string, public message: string) {}
+    constructor(public title: string, public content: string) {}
 }

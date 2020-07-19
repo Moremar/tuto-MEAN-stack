@@ -66,6 +66,7 @@ SETUP
 
 - Express framework
      $>  npm install --save express
+     $>  npm install --save body-parser     // middleware parsing POST/PUT body
   We create an app.js file under /backend that represents our Express app.
   In that file we define all the middleware of the app.
   It is imported and started from server.js.
