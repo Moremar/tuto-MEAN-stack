@@ -20,7 +20,7 @@ export class PostCreateComponent implements OnInit {
       if (postForm.invalid) {
         alert('The post is invalid.');
       } else {
-        this.postService.createPost(postForm.value.title, postForm.value.message);
+        this.postService.createPost(postForm.value.title, postForm.value.content);
         postForm.resetForm();
       }
     }

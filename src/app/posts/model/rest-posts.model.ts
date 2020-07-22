@@ -1,6 +1,6 @@
 // REST reprensetation of a post fetched from the the backend
 export interface RestPost {
-    id: string;
+    _id: string;
     title: string;
     content: string;
 }
@@ -15,4 +15,10 @@ export interface RestGetPostsResponse {
 export interface RestPostPostsResponse {
     message: string;
     post: RestPost;
+}
+
+// REST response from the backend on DELETE post
+export interface RestDeletePostResponse {
+    message: string;
+    id: string;
 }

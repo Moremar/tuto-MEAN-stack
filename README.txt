@@ -7,7 +7,7 @@ INTRODUCTION
 ------------
 
 The MEAN stack is a set of technologies that lets us build full web applications :
-M : MongoDB for data persistence
+M : MongoDB for data persistence (No SQL database)
 E : ExpressJS (NodeJS server side framework)
     It applies a succession of middlewares to incoming requests and send a response.
 A : Angular for the front-end
@@ -71,12 +71,50 @@ SETUP
   In that file we define all the middleware of the app.
   It is imported and started from server.js.
 
+- MongoDB
+  ~ Windows :
+    Download from their website https://www.mongodb.com/
+    This installs MongoDB Compass (MongoDB GUI)
+    Create a new database on localhost:27017
+    We can then create collections in it and add documents.
+  ~ MacOS with Homebrew :
+    $>  brew tap mongodb/brew                        // get MongoDB tap
+    $>  brew install mongodb-community@4.2           // install MongoDB from their tap
+    $>  brew services start mongodb-community@4.2    // start the MongoDB server (mongod)
+  ~ We can also use MongoDB Atlas (free cloud sandbox provided by MongoDB)
+     - Create an account from their website
+     - Click "create cluster"
+     - Select AWS and pick all the free options then click "Create"
+     - it takes 3min to create the cluster
+     - Under "Database Access" create a user (login/password) with Atlas Admin privilege
+     - Under "Network Access" add our current IP address (where our Node.js app is running)
+     - We can then connect it from MongoDB Compass GUI, from the shell of from our app.
+  ~ Angular MongoDB packages
+    $>  npm install --save mongodb       // default package for MongoDB (we are not using it here)
+    $>  npm install --save mongoose      // schema-oriented Node.js package for MongoDB
+
+
+     admin / 2CdjMdbZ6pchCAp
+
 
 ANGULAR
 -------
 
 The front-end of the MEAN app is based on Angular.
 See Angular tuto for details.
+
+
+MongoDB
+-------
+
+NoSQL database storing collections of documents in JSON format.
+We will access it with Mongoose, a NodeJS module above the official MongoDB driver that lets us 
+easily create collection schemas and represent documents with Javascipt objects.
+
+For each collection in MongoDB we want to interact with, we create a file and export the model for that collection (made
+of the collection name and the collection schema), see backend/models/post.js for example.
+
+From the app.js code, we connect Mongoose to the running MongoDB database, and then use the model to save documents.
 
 
 TOOLS

@@ -1,22 +1,35 @@
 // Packages from NPM
 const express = require('express');
 const bodyParser = require("body-parser");
+const mongoose = require('mongoose');
 
+// Mongoose models for MongoDB collections
+const Post = require('./models/post');
+
+// Connect to MongoDB
+const mongoUser = 'admin';
+const mongoPwd = '2CdjMdbZ6pchCAp';
+const mongoServer = 'cluster0.qsaef.mongodb.net';
+const dbName = 'mean-app';
+mongoose.connect('mongodb+srv://' + mongoUser + ':' + mongoPwd + '@' + mongoServer + '/' + dbName)
+        .then(() => {
+            console.log("Connection to MongoDB succeeded.")
+        }).catch(() => {
+            console.log("Connection issue !");
+        });
 
 // create the express app
 const app = express();
-
-// for now use an in-memory array of posts (will go to MongoDB later)
-posts = [
-    {id: '1', title: 'post1', content: 'My post1 content'},
-    {id: '2', title: 'post2', content: 'My post2 content'},
-];
 
 /*
  * Express middleware can be called with :
  *  - app.use()  to apply it for every verb
  *  - app.get() / app.post() ... to apply only for a specific verb
  * All these functions can take a URL as 1st argument to only apply for this URL
+ * 
+ * Express applies the middleware in the order they are defined.
+ * From one middleware, call next() to jump to the next middleware.
+ * If a middleware handles the query then it does not call next() but sends a response.
  */
 
 
@@ -25,9 +38,10 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 
+// first custom middleware to apply some common headers
 app.use((_request, response, next) => {
     console.log('Middleware: Init');
-    // Add common headers for all requests
+    // All responses will be on JSON format
     response.setHeader('Content-Type', 'application/json');
     // CORS header to allow Cross Origin Resource Sharing
     response.setHeader('Access-Control-Allow-Origin', '*');
@@ -35,41 +49,63 @@ app.use((_request, response, next) => {
     response.setHeader('Access-Control-Allow-Methods', 'GET, PUT, POST, PATCH, DELETE, OPTIONS');
     response.setHeader('Access-Control-Allow-Headers', 'Origin, Accept, X-Requested-With, Content-Type, ' + 
                                                        'Access-Control-Allow-Origin, Access-Control-Allow-Methods, Access-Control-Allow-Origin');
-    // apply next middleware
+    // jump to the next middleware
     next();
 });
 
 
-// add a middleware for the /api/posts path
+// define a middleware for post list
 app.get('/api/posts',
     (_request, response, _next) => {
         console.log('Middleware: GET /api/posts');
-        // send the response containing the posts
-        // no call to next() since the processing is finished here, no other middleware needs to be applied
-        response.status(201).json({
-            message: 'Retrieved posts successfully.',
-            posts: posts
-        });
+        // get all posts from MongoDB
+        Post.find()
+            .then( (posts) => {
+                response.status(200).json({
+                    message: 'Retrieved posts successfully.',
+                    posts: posts
+                });
+            });
     }
 );
 
 
-// add a middleware for the /api/posts path
+// add a middleware for the post creation
 app.post('/api/posts',
     (request, response, _next) => {
         console.log('Middleware: POST /api/posts');
         console.log(request.body);
-        // TODO use ID from MongoDB
-        const post = {id: '3', title: request.body.title, content: request.body.content};
-        console.log('Will create post :');
-        console.log(post);
-        posts.push(post);
+        const post = new Post({
+            title: request.body.title,
+            content: request.body.content
+        });
+        console.log('Creating post in MongoDB post :' + post);
+        // save in MongoDB in the current database in collection called "posts" (lower-case plurial name of the model)
+        post.save();
+//        posts.push(post);
         // send the response containing the posts
         // no call to next() since the processing is finished here, no other middleware needs to be applied
         response.status(200).json({
             message: 'Created post successfully.',
             post: post
         });
+    }
+);
+
+
+// define a middleware for post deletion
+app.delete('/api/posts/:id',
+    (request, response, _next) => {
+        const postId = request.params.id;
+        console.log('Middleware: DELETE /api/posts/' + postId);
+        // delete a post in MongoDB
+        Post.deleteOne({ _id: postId })
+            .then( (_deletionResult) => {
+                response.status(200).json({
+                    message: 'Deleted post successfully.',
+                    id: postId
+                });
+            });
     }
 );
 
