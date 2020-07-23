@@ -54,6 +54,7 @@ export class PostCreateComponent implements OnInit {
     } else {
       // edition mode
       this.postService.editPost(this.editedPost.id, this.postForm.value.title, this.postForm.value.content);
+      this.postService.stopEditing();
     }
     this.postForm.resetForm();
   }

@@ -81,14 +81,14 @@ app.post('/api/posts',
         });
         console.log('Creating post in MongoDB post :' + post);
         // save in MongoDB in the current database in collection called "posts" (lower-case plurial name of the model)
-        post.save();
-//        posts.push(post);
-        // send the response containing the posts
-        // no call to next() since the processing is finished here, no other middleware needs to be applied
-        response.status(200).json({
-            message: 'Created post successfully.',
-            post: post
-        });
+        post.save()
+            .then( (createdPost) => {
+                // send the response containing the posts
+                response.status(200).json({
+                    message: 'Created post successfully.',
+                    post: createdPost
+                });
+            });
     }
 );
 

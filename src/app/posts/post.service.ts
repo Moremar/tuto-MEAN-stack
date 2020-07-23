@@ -15,6 +15,9 @@ export class PostService {
 
   private POSTS_URL = 'http://localhost:3000/api/posts';
 
+  // keep all posts in memory so we do not need to re-fetch all posts at every change
+  private allPosts: Post[] = [];
+
   // private Subject to prevent to next() from outside this class
   private postsChanged = new Subject<Post[]>();       // give all posts when changed
   private editedPostChanged = new Subject<Post>();    // give the post being edited (null if not edition mode)
@@ -50,12 +53,15 @@ export class PostService {
   // create a new post in the backend and refresh the posts list
   createPost(title: string, content: string): void {
     console.log('Creating post ' + title + ' / ' + content);
-    this.http.post<RestPostPostResponse>(this.POSTS_URL, new Post(null, title, content))
+    const newPost = new Post(null, title, content);
+    this.http.post<RestPostPostResponse>(this.POSTS_URL, newPost)
         .subscribe((restResponse: RestPostPostResponse) => {
           console.log('Receiving from POST ' + this.POSTS_URL);
           console.log(restResponse);
-          // force to refetch the posts so other parts of the code get the change
-          this.fetchPosts();
+          // add the new post in the allPost array
+          newPost.id = restResponse.post._id;
+          this.allPosts.push(newPost);
+          this.refreshPosts();
         });
   }
 
@@ -64,12 +70,20 @@ export class PostService {
    editPost(postId: string, title: string, content: string): void {
     console.log('Editing post ' + postId + ' : ' + title + ' / '  + content);
     const url = this.POSTS_URL + '/' + postId;
-    this.http.put<RestPutPostResponse>(url, new Post(postId, title, content))
+    const updatedPost = new Post(postId, title, content);
+    this.http.put<RestPutPostResponse>(url, updatedPost)
         .subscribe((restResponse: RestPutPostResponse) => {
           console.log('Receiving from PUT ' + url);
           console.log(restResponse);
-          // force to refetch the posts so other parts of the code get the change
-          this.fetchPosts();
+          // update the edited post in the allPost array
+          this.allPosts = this.allPosts.map((post: Post) => {
+            if (post.id == postId) {
+              return updatedPost;
+            } else {
+              return post;
+            }
+          });
+          this.refreshPosts();
         });
   }
 
@@ -83,7 +97,8 @@ export class PostService {
           console.log('Receiving from DELETE ' + url);
           console.log(restResponse);
           // force to refetch the posts so other parts of the code get the change
-          this.fetchPosts();
+          this.allPosts = this.allPosts.filter( (post: Post) => { return post.id != postId; });
+          this.refreshPosts();
         });
   }
 
@@ -107,8 +122,15 @@ export class PostService {
         ))
         // subcribe to the new Post array to update the GUI with it
         .subscribe((posts: Post[]) => {
-          this.stopEditing();
-          this.postsChanged.next(posts);
+          this.allPosts = posts;
+          this.refreshPosts();
         });
+  }
+
+
+  // let the other parts of the app know about the current posts
+  refreshPosts(): void {
+    // send a copy of the allPosts array
+    this.postsChanged.next(this.allPosts.slice());
   }
 }
