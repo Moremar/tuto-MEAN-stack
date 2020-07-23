@@ -93,6 +93,27 @@ app.post('/api/posts',
 );
 
 
+// define a middleware for post edition
+app.put('/api/posts/:id',
+    (request, response, _next) => {
+        const postId = request.params.id;
+        console.log('Middleware: PUT /api/posts/' + postId);
+        console.log(request.body);
+        // update a post in MongoDB
+        Post.findByIdAndUpdate({_id: postId}, {
+                title: request.body.title,
+                content: request.body.content
+            })
+            .then( (updatedPost) => {
+                response.status(200).json({
+                    message: 'Updated post successfully.',
+                    post: updatedPost
+                });
+            });
+    }
+);
+
+
 // define a middleware for post deletion
 app.delete('/api/posts/:id',
     (request, response, _next) => {

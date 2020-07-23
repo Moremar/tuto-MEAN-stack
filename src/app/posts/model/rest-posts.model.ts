@@ -5,19 +5,25 @@ export interface RestPost {
     content: string;
 }
 
-// REST response from the backend on GET posts
+// REST response from the backend on GET /api/posts
 export interface RestGetPostsResponse {
     message: string;
     posts: RestPost[];
 }
 
-// REST response from the backend on POST posts
-export interface RestPostPostsResponse {
+// REST response from the backend on POST /api/posts
+export interface RestPostPostResponse {
     message: string;
     post: RestPost;
 }
 
-// REST response from the backend on DELETE post
+// REST response from the backend on PUT /api/posts/:id
+export interface RestPutPostResponse {
+    message: string;
+    post: RestPost;
+}
+
+// REST response from the backend on DELETE /api/posts/:id
 export interface RestDeletePostResponse {
     message: string;
     id: string;

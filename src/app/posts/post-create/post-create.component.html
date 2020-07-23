@@ -1,5 +1,5 @@
 <mat-card>
-    <form (submit)="onSavePost(postForm)" #postForm="ngForm">
+    <form (submit)="onSavePost()" #postForm="ngForm">
         <mat-form-field appearance="fill">
             <mat-label>Post title</mat-label>
             <input matInput name="title" ngModel required #title="ngModel" />
@@ -10,6 +10,10 @@
             <textarea matInput name="content" rows="3" ngModel required #content="ngModel"></textarea>
             <mat-error *ngIf="content.invalid">A post content is required.</mat-error>
         </mat-form-field>
-        <button mat-flat-button color="primary" type="submit">Save post</button>
+        <!-- create mode -->
+        <button *ngIf="editedPost == null" mat-flat-button color="primary" type="submit">Create post</button>
+        <!-- edition mode -->
+        <button *ngIf="editedPost != null" mat-flat-button color="primary" type="submit">Update post</button>
+        <button *ngIf="editedPost != null" mat-flat-button color="secondary" type="button" (click)="onCancel()">Cancel</button>
     </form>
 </mat-card>
