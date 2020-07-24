@@ -100,8 +100,20 @@ SETUP
 ANGULAR
 -------
 
-The front-end of the MEAN app is based on Angular.
+The front-end of the MEAN app is based on Angular, running on the client browser.
 See Angular tuto for details.
+
+
+Node.js + Express
+-----------------
+
+The backend of the MEAN app is based on Node.js, running on the server.
+It uses Express framework to manage the REST API.
+Express receives some queries and send them to a sequence of middleware.
+Each middleware can either respond to the query or enrich it and send it to the next middleware.
+We use some specific middleware for each route that the REST API supports.
+These routes can either be handled directly from the main file (with app.use() / app.get() ...) or
+grouped per API section into a router in a dedicated files and imported with app.use(router).
 
 
 MongoDB

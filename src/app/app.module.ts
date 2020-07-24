@@ -2,7 +2,9 @@
 import { BrowserModule } from '@angular/platform-browser';
 import {FormsModule} from '@angular/forms';
 import { NgModule } from '@angular/core';
-import { MatInputModule, MatCardModule, MatButtonModule, MatToolbarModule, MatExpansionModule } from '@angular/material';
+import { MatInputModule, MatCardModule,
+         MatButtonModule, MatToolbarModule,
+         MatExpansionModule, MatProgressSpinnerModule } from '@angular/material';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
 // Internal imports
@@ -32,6 +34,7 @@ import { PostListComponent } from './posts/post-list/post-list.component';
     MatButtonModule,
     MatToolbarModule,
     MatExpansionModule,
+    MatProgressSpinnerModule,
     HttpClientModule
   ],
   providers: [],

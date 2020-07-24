@@ -1,4 +1,6 @@
-<mat-card>
+<mat-spinner *ngIf="loading"></mat-spinner>
+
+<mat-card *ngIf="!loading">
     <form (submit)="onSavePost(postForm)" #postForm="ngForm">
         <mat-form-field appearance="fill">
             <mat-label>Post title</mat-label>

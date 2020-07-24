@@ -1,7 +1,8 @@
 // Angular imports
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { Router } from '@angular/router';
+import { Observable, Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
 // Internal imports
 import { Post } from './model/post.model';
@@ -21,9 +22,10 @@ export class PostService {
   private allPosts: Post[] = [];
 
   // private Subject to prevent to next() from outside this class
-  private postsChanged = new BehaviorSubject<Post[]>([]);    // give all posts when changed
+  private postsChanged = new Subject<Post[]>();    // give all posts when changed
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient,
+              private router: Router) {}
 
 
   // postsChanged is private, so we only expose an observable version of it (that cannot call next())
@@ -55,6 +57,7 @@ export class PostService {
           newPost.id = restResponse.post._id;
           this.allPosts.push(newPost);
           this.refreshPosts();
+          this.router.navigate(['list']);
         });
   }
 
@@ -76,6 +79,7 @@ export class PostService {
             }
           });
           this.refreshPosts();
+          this.router.navigate(['list']);
         });
   }
 

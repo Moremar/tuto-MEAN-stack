@@ -18,6 +18,8 @@ export class PostCreateComponent implements OnInit {
   private editedPost: Post = new Post(null, '', '');
   private editionMode = false;
 
+  // a spinner is displayed if loading
+  loading = false;
 
   constructor(private router: Router, 
               private activeRoute: ActivatedRoute,
@@ -30,9 +32,11 @@ export class PostCreateComponent implements OnInit {
       this.editionMode = paramMap.has('id');
       if (this.editionMode) {
         // load the post to edit
+        this.loading = true;
         this.postService.getPostObservable(paramMap.get('id')).subscribe((post: Post) => {
           // that will update the title and content in the form
           this.editedPost = post;
+          this.loading = false;
         });
       }
     });
@@ -45,12 +49,16 @@ export class PostCreateComponent implements OnInit {
       // the validation in the HTML will show the error
       return;
     }
+
+    // show the spinner, no need to set it back to false because we will navigate away from the page
+    this.loading = true;
+
     if (this.editionMode) {
       this.postService.editPost(this.editedPost);
     } else {
       this.postService.createPost(this.editedPost);
     }
-    this.router.navigate(['list']);
+    // the post service will automatically redirect to /list once the save is done in DB
   }
 
 

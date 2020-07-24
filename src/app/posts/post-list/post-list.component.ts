@@ -17,17 +17,23 @@ export class PostListComponent implements OnInit, OnDestroy {
   posts: Post[] = [];
   private postsSub: Subscription;
 
+    // a spinner is displayed if loading
+    loading = false;
+
+
   constructor(private router: Router,
               private postService: PostService) {
   }
 
 
   ngOnInit() {
+    this.loading = true;
     // fetch the posts from the backend
     this.postService.fetchPosts();
     // listen to any change on the posts
     this.postsSub = this.postService.getPostsObservable().subscribe(
       (posts: Post[]) => {
+        this.loading = false;
         this.posts = posts;
       }
     );
