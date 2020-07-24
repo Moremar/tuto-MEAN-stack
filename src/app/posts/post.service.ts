@@ -1,11 +1,13 @@
 // Angular imports
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Subject, Observable } from 'rxjs';
+import { Observable, BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
 // Internal imports
 import { Post } from './model/post.model';
-import { RestGetPostsResponse, RestPostPostResponse, RestPutPostResponse, RestDeletePostResponse } from './model/rest-posts.model';
+import { RestGetPostsResponse, RestPostPostResponse,
+         RestPutPostResponse, RestDeletePostResponse,
+         RestGetPostResponse } from './model/rest-posts.model';
 
 
 @Injectable({
@@ -19,8 +21,7 @@ export class PostService {
   private allPosts: Post[] = [];
 
   // private Subject to prevent to next() from outside this class
-  private postsChanged = new Subject<Post[]>();       // give all posts when changed
-  private editedPostChanged = new Subject<Post>();    // give the post being edited (null if not edition mode)
+  private postsChanged = new BehaviorSubject<Post[]>([]);    // give all posts when changed
 
   constructor(private http: HttpClient) {}
 
@@ -31,29 +32,21 @@ export class PostService {
   }
 
 
-  // to edit a post, it needs to be selected from the list of posts
-  // then it becomes editable from the post-create component
-  startEditing(post: Post) {
-    this.editedPostChanged.next(post);
-  }
-
-  
-  // to stop the edition mode, we set the edited post to null
-  stopEditing() {
-    this.editedPostChanged.next(null);
-  }
-
-  
-  // editedPostChanged is private, so we only expose an observable version of it (that cannot call next())
-  getEditedPostObservable(): Observable<Post> {
-    return this.editedPostChanged.asObservable();
+  // get an observable on a specific post in the backend
+  getPostObservable(postId: string): Observable<Post> {
+    return this.http.get<RestGetPostResponse>(this.POSTS_URL + '/' + postId)
+        .pipe(
+          map((restResponse: RestGetPostResponse) => {
+            // convert to Frontend post format
+            return new Post(restResponse.post._id, restResponse.post.title, restResponse.post.content);
+          })
+        );
   }
 
 
   // create a new post in the backend and refresh the posts list
-  createPost(title: string, content: string): void {
-    console.log('Creating post ' + title + ' / ' + content);
-    const newPost = new Post(null, title, content);
+  createPost(newPost: Post): void {
+    console.log('Creating post ' + newPost.title + ' / ' + newPost.content);
     this.http.post<RestPostPostResponse>(this.POSTS_URL, newPost)
         .subscribe((restResponse: RestPostPostResponse) => {
           console.log('Receiving from POST ' + this.POSTS_URL);
@@ -67,18 +60,17 @@ export class PostService {
 
 
    // edit an existing post in the backend and refresh the posts list
-   editPost(postId: string, title: string, content: string): void {
-    console.log('Editing post ' + postId + ' : ' + title + ' / '  + content);
-    const url = this.POSTS_URL + '/' + postId;
-    const updatedPost = new Post(postId, title, content);
-    this.http.put<RestPutPostResponse>(url, updatedPost)
+   editPost(editedPost: Post): void {
+    console.log('Editing post ' + editedPost.id + ' : ' + editedPost.title + ' / '  + editedPost.content);
+    const url = this.POSTS_URL + '/' + editedPost.id;
+    this.http.put<RestPutPostResponse>(url, editedPost)
         .subscribe((restResponse: RestPutPostResponse) => {
           console.log('Receiving from PUT ' + url);
           console.log(restResponse);
           // update the edited post in the allPost array
           this.allPosts = this.allPosts.map((post: Post) => {
-            if (post.id == postId) {
-              return updatedPost;
+            if (post.id == post.id) {
+              return editedPost;
             } else {
               return post;
             }
@@ -101,6 +93,7 @@ export class PostService {
           this.refreshPosts();
         });
   }
+
 
   // refresh the posts list from the backend
   fetchPosts(): void {

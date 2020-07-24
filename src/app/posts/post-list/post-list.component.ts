@@ -1,5 +1,6 @@
 // Angular imports
 import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 // Internal imports
 import { Post } from '../model/post.model';
@@ -16,8 +17,10 @@ export class PostListComponent implements OnInit, OnDestroy {
   posts: Post[] = [];
   private postsSub: Subscription;
 
-  constructor(private postService: PostService) {
+  constructor(private router: Router,
+              private postService: PostService) {
   }
+
 
   ngOnInit() {
     // fetch the posts from the backend
@@ -30,15 +33,18 @@ export class PostListComponent implements OnInit, OnDestroy {
     );
   }
 
+
   ngOnDestroy() {
     if (this.postsSub) {
       this.postsSub.unsubscribe();
     }
   }
 
+
   onEdit(post: Post) {
-    this.postService.startEditing(post);
+    this.router.navigate(['edit', post.id]);
   }
+
 
   onDelete(postId: string) {
     this.postService.deletePost(postId);

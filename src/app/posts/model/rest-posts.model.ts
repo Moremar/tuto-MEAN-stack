@@ -11,6 +11,12 @@ export interface RestGetPostsResponse {
     posts: RestPost[];
 }
 
+// REST response from the backend on GET /api/posts/:id
+export interface RestGetPostResponse {
+    message: string;
+    post: RestPost;
+}
+
 // REST response from the backend on POST /api/posts
 export interface RestPostPostResponse {
     message: string;

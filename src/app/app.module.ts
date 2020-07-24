@@ -23,6 +23,7 @@ import { PostListComponent } from './posts/post-list/post-list.component';
   imports: [
     BrowserModule,
     FormsModule,
+    /* Custom routing for our app */
     AppRoutingModule,
     /* Angular Material modules */
     BrowserAnimationsModule,    /* added by : ng add @angular/material */

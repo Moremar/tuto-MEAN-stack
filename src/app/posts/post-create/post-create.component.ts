@@ -1,6 +1,7 @@
 // Angular imports
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
+import { Router, ActivatedRoute, ParamMap } from '@angular/router';
 // Internal imports
 import { Post } from '../model/post.model';
 import { PostService } from '../post.service';
@@ -13,55 +14,47 @@ import { PostService } from '../post.service';
 })
 export class PostCreateComponent implements OnInit {
 
-  // if we are in editing mode, this is the post being edited, else null
-  private editedPost: Post = null;
-
-  // handler on the JS form representation provided by Angular
-  @ViewChild('postForm', {static: false}) postForm: NgForm;
+  // if we are in editing mode, this is the post being edited, else it is a new post
+  private editedPost: Post = new Post(null, '', '');
+  private editionMode = false;
 
 
-  constructor(private postService: PostService) {}
+  constructor(private router: Router, 
+              private activeRoute: ActivatedRoute,
+              private postService: PostService) {}
 
   
   ngOnInit() {
-    // track when a post gets edited or edition mode stops to update the GUI
-    this.postService.getEditedPostObservable().subscribe(
-      (post: Post) => {
-        this.editedPost = post;
-        if (this.editedPost == null) {
-          // switch to creation mode (reset the title / content inputs)
-          this.postForm.resetForm();
-        } else {
-          // switch to edition mode (load the title / content of the edited post)
-          this.postForm.setValue({
-            title: this.editedPost.title,
-            content: this.editedPost.content
-          });
-        }
-      })
+    // if this component is loaded from the /edit/:id route, it has the ID of the post to edit
+    this.activeRoute.paramMap.subscribe((paramMap: ParamMap) => {
+      this.editionMode = paramMap.has('id');
+      if (this.editionMode) {
+        // load the post to edit
+        this.postService.getPostObservable(paramMap.get('id')).subscribe((post: Post) => {
+          // that will update the title and content in the form
+          this.editedPost = post;
+        });
+      }
+    });
   }
 
 
   // save the post (create new one or update the edited one if edition mode)
-  onSavePost(): void {
-    if (this.postForm.invalid) {
+  onSavePost(postForm: NgForm): void {
+    if (postForm.invalid) {
       // the validation in the HTML will show the error
       return;
     }
-    if (this.editedPost == null) {
-      // creation mode
-      this.postService.createPost(this.postForm.value.title, this.postForm.value.content);
+    if (this.editionMode) {
+      this.postService.editPost(this.editedPost);
     } else {
-      // edition mode
-      this.postService.editPost(this.editedPost.id, this.postForm.value.title, this.postForm.value.content);
-      this.postService.stopEditing();
+      this.postService.createPost(this.editedPost);
     }
-    this.postForm.resetForm();
+    this.router.navigate(['list']);
   }
 
 
-  // stop the edition mode
   onCancel(): void {
-    this.postService.stopEditing();
+    this.router.navigate(['list']);
   }
 }

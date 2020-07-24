@@ -54,7 +54,7 @@ app.use((_request, response, next) => {
 });
 
 
-// define a middleware for post list
+// middleware to get all posts
 app.get('/api/posts',
     (_request, response, _next) => {
         console.log('Middleware: GET /api/posts');
@@ -70,7 +70,24 @@ app.get('/api/posts',
 );
 
 
-// add a middleware for the post creation
+// middleware to get a single post
+app.get('/api/posts/:id',
+    (request, response, _next) => {
+        const postId = request.params.id;
+        console.log('Middleware: GET /api/posts/' + postId);
+        // get the post from MongoDB
+        Post.findOne({ _id: postId })
+            .then( (post) => {
+                response.status(200).json({
+                    message: 'Retrieved post successfully.',
+                    post: post
+                });
+            });
+    }
+);
+
+
+// middleware for the post creation
 app.post('/api/posts',
     (request, response, _next) => {
         console.log('Middleware: POST /api/posts');
@@ -93,7 +110,7 @@ app.post('/api/posts',
 );
 
 
-// define a middleware for post edition
+// middleware to edit a post
 app.put('/api/posts/:id',
     (request, response, _next) => {
         const postId = request.params.id;
@@ -114,7 +131,7 @@ app.put('/api/posts/:id',
 );
 
 
-// define a middleware for post deletion
+// middleware to delete a post
 app.delete('/api/posts/:id',
     (request, response, _next) => {
         const postId = request.params.id;

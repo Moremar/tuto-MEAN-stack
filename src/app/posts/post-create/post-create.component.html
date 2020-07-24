@@ -1,19 +1,19 @@
 <mat-card>
-    <form (submit)="onSavePost()" #postForm="ngForm">
+    <form (submit)="onSavePost(postForm)" #postForm="ngForm">
         <mat-form-field appearance="fill">
             <mat-label>Post title</mat-label>
-            <input matInput name="title" ngModel required #title="ngModel" />
+            <input matInput name="title" [(ngModel)]='editedPost.title' required #title="ngModel" />
             <mat-error *ngIf="title.invalid">A post title is required.</mat-error>
         </mat-form-field>
         <mat-form-field appearance="fill">
             <mat-label>Post content</mat-label>
-            <textarea matInput name="content" rows="3" ngModel required #content="ngModel"></textarea>
+            <textarea matInput name="content" rows="3" [(ngModel)]='editedPost.content' required #content="ngModel"></textarea>
             <mat-error *ngIf="content.invalid">A post content is required.</mat-error>
         </mat-form-field>
         <!-- create mode -->
-        <button *ngIf="editedPost == null" mat-flat-button color="primary" type="submit">Create post</button>
+        <button *ngIf="!editionMode" mat-flat-button color="primary" type="submit">Create post</button>
         <!-- edition mode -->
-        <button *ngIf="editedPost != null" mat-flat-button color="primary" type="submit">Update post</button>
-        <button *ngIf="editedPost != null" mat-flat-button color="secondary" type="button" (click)="onCancel()">Cancel</button>
+        <button *ngIf="editionMode" mat-flat-button color="primary" type="submit">Update post</button>
+        <button *ngIf="editionMode" mat-flat-button color="secondary" type="button" (click)="onCancel()">Cancel</button>
     </form>
 </mat-card>

@@ -1,3 +1,8 @@
 <mat-toolbar color="primary">
     <span>My Post App</span>
+    <span class="menu-spacer"></span>
+    <div>
+      <a mat-button [routerLink]="'/list'" routerLinkActive="active-link"> Posts </a>
+      <a mat-button [routerLink]="'/create'" routerLinkActive="active-link"> Create post </a>
+    </div>
 </mat-toolbar>

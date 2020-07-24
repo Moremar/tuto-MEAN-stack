@@ -1,0 +1,12 @@
+.menu-spacer {
+    padding: 0 10px;
+}
+
+a.mat-button {
+    margin: 0 2px;
+}
+
+a:hover,
+a.active-link {
+    background-color: #844ee2;
+}
