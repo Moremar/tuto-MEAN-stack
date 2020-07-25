@@ -3,6 +3,7 @@ export interface RestPost {
     _id: string;
     title: string;
     content: string;
+    imagePath: string;
 }
 
 // REST response from the backend on GET /api/posts

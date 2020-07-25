@@ -1,16 +1,27 @@
 <mat-spinner *ngIf="loading"></mat-spinner>
 
 <mat-card *ngIf="!loading">
-    <form (submit)="onSavePost(postForm)" #postForm="ngForm">
+    <form (submit)="onSavePost(postForm)" [formGroup]="postForm">
+        <!-- title input -->
         <mat-form-field appearance="fill">
             <mat-label>Post title</mat-label>
-            <input matInput name="title" [(ngModel)]='editedPost.title' required #title="ngModel" />
-            <mat-error *ngIf="title.invalid">A post title is required.</mat-error>
+            <input matInput formControlName="title" />
+            <mat-error *ngIf="postForm.controls.title.invalid">A post title is required.</mat-error>
         </mat-form-field>
+        <!-- image upload button -->
+        <div class="uploadImageDiv">
+            <!-- use a hidden default file picker, and click it when our custom button is clicked -->
+            <button mat-stroked-button type="button" (click)="filePicker.click()">Add image</button>
+            <input type="file" #filePicker (change)="onImageSelected($event)"/>
+        </div>
+        <div *ngIf="imagePreview != null && imagePreview != '' && postForm.controls.image.valid" class="preview">
+            <img [src]="imagePreview" [alt]="postForm.controls.title" />
+        </div>
+        <!-- content input -->
         <mat-form-field appearance="fill">
             <mat-label>Post content</mat-label>
-            <textarea matInput name="content" rows="3" [(ngModel)]='editedPost.content' required #content="ngModel"></textarea>
-            <mat-error *ngIf="content.invalid">A post content is required.</mat-error>
+            <textarea matInput rows="3" formControlName="content"></textarea>
+            <mat-error *ngIf="postForm.controls.content.invalid">A post content is required.</mat-error>
         </mat-form-field>
         <!-- create mode -->
         <button *ngIf="!editionMode" mat-flat-button color="primary" type="submit">Create post</button>

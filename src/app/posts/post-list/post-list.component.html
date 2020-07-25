@@ -11,6 +11,9 @@
                     {{ post.title }}
                 </mat-panel-title>
             </mat-expansion-panel-header>
+            <div class="postImage">
+                <img [src]="post.imagePath" [alt]="post.title" />
+            </div>
             <!-- body of the panel visible only when expanded -->
             <p>{{ post.content }}</p>
             <!-- action buttons visible only when expanded -->

@@ -1,6 +1,6 @@
 // Angular imports
 import { Component, OnInit } from '@angular/core';
-import { NgForm } from '@angular/forms';
+import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Router, ActivatedRoute, ParamMap } from '@angular/router';
 // Internal imports
 import { Post } from '../model/post.model';
@@ -15,11 +15,17 @@ import { PostService } from '../post.service';
 export class PostCreateComponent implements OnInit {
 
   // if we are in editing mode, this is the post being edited, else it is a new post
-  private editedPost: Post = new Post(null, '', '');
+  private editedPost: Post = new Post(null, null, null, null);
   private editionMode = false;
 
   // a spinner is displayed if loading
   loading = false;
+
+  // reactive form (required for file upload)
+  postForm: FormGroup;
+
+  // URL of the image of the post
+  imagePreview: string = null;
 
   constructor(private router: Router, 
               private activeRoute: ActivatedRoute,
@@ -27,6 +33,14 @@ export class PostCreateComponent implements OnInit {
 
   
   ngOnInit() {
+    // create the form
+    this.postForm = new FormGroup({
+      'title': new FormControl(null, {validators: [Validators.required, Validators.minLength(3)]}),
+      'content': new FormControl(null, {validators: [Validators.required]}),
+      // we validate the image selected, but no control in the HTML actually binds to it
+      'image': new FormControl(null, {validators: Validators.required})
+    });
+  
     // if this component is loaded from the /edit/:id route, it has the ID of the post to edit
     this.activeRoute.paramMap.subscribe((paramMap: ParamMap) => {
       this.editionMode = paramMap.has('id');
@@ -37,15 +51,39 @@ export class PostCreateComponent implements OnInit {
           // that will update the title and content in the form
           this.editedPost = post;
           this.loading = false;
+          // pre-poluate the form with the edited post
+          this.postForm.setValue({
+            'title': this.editedPost.title,
+            'content': this.editedPost.content,
+            'image': this.editedPost.imagePath,
+          });
+          // display the preview in the HTML as well
+          this.imagePreview = this.editedPost.imagePath;
         });
       }
     });
   }
 
 
+  onImageSelected(event: Event): void {
+    const selectedFile = (event.target as HTMLInputElement).files[0];
+    // store the file itself in the form (not the path, the actual file)
+    this.postForm.patchValue({image: selectedFile});
+    this.postForm.controls.image.updateValueAndValidity();
+     console.log('Selected file ' + selectedFile.name);
+
+     const fileReader = new FileReader();
+     // callback to apply once a file is read by the reader
+     fileReader.onload = () => {
+        this.imagePreview = fileReader.result as string;  // readAsDataURL returns a string
+     };
+     fileReader.readAsDataURL(selectedFile);
+  }
+
+
   // save the post (create new one or update the edited one if edition mode)
-  onSavePost(postForm: NgForm): void {
-    if (postForm.invalid) {
+  onSavePost(): void {
+    if (this.postForm.invalid) {
       // the validation in the HTML will show the error
       return;
     }
@@ -53,10 +91,14 @@ export class PostCreateComponent implements OnInit {
     // show the spinner, no need to set it back to false because we will navigate away from the page
     this.loading = true;
 
+    // reflect the post modification in the form to the edited post
+    this.editedPost.title = this.postForm.value.title;
+    this.editedPost.content = this.postForm.value.content;
+
     if (this.editionMode) {
-      this.postService.editPost(this.editedPost);
+      this.postService.editPost(this.editedPost, this.postForm.value.image);
     } else {
-      this.postService.createPost(this.editedPost);
+      this.postService.createPost(this.editedPost, this.postForm.value.image);
     }
     // the post service will automatically redirect to /list once the save is done in DB
   }

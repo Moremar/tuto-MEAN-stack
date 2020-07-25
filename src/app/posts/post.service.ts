@@ -40,21 +40,32 @@ export class PostService {
         .pipe(
           map((restResponse: RestGetPostResponse) => {
             // convert to Frontend post format
-            return new Post(restResponse.post._id, restResponse.post.title, restResponse.post.content);
+            return new Post(restResponse.post._id, 
+                            restResponse.post.title,
+                            restResponse.post.content,
+                            restResponse.post.imagePath);
           })
         );
   }
 
 
   // create a new post in the backend and refresh the posts list
-  createPost(newPost: Post): void {
+  createPost(newPost: Post, image: File): void {
     console.log('Creating post ' + newPost.title + ' / ' + newPost.content);
-    this.http.post<RestPostPostResponse>(this.POSTS_URL, newPost)
+
+    // Use a FormData instead of JSON since we need both k/v and a file
+    const postData = new FormData();
+    postData.append('title', newPost.title);
+    postData.append('content', newPost.content);
+    postData.append('image', image, newPost.title);
+
+    this.http.post<RestPostPostResponse>(this.POSTS_URL, postData)
         .subscribe((restResponse: RestPostPostResponse) => {
           console.log('Receiving from POST ' + this.POSTS_URL);
           console.log(restResponse);
           // add the new post in the allPost array
           newPost.id = restResponse.post._id;
+          newPost.imagePath = restResponse.post.imagePath;
           this.allPosts.push(newPost);
           this.refreshPosts();
           this.router.navigate(['list']);
@@ -63,17 +74,33 @@ export class PostService {
 
 
    // edit an existing post in the backend and refresh the posts list
-   editPost(editedPost: Post): void {
+   editPost(editedPost: Post, image: File | string): void {
     console.log('Editing post ' + editedPost.id + ' : ' + editedPost.title + ' / '  + editedPost.content);
+
+    // the image can be either a file (if uploading a new file)
+    // or an image URL (if keeping the previous one)
+    let postData: Post | FormData;
+    if (typeof(image) == 'object') {
+      // the file must be uploaded, we need to use a Form data for the body of the POST REST call
+      postData = new FormData();
+      postData.append('id', editedPost.id);
+      postData.append('title', editedPost.title);
+      postData.append('content', editedPost.content);
+      postData.append('image', image, editedPost.title);
+    } else {
+      // no new file to upload, we can send a JSON object for the PUT body
+      postData = new Post(editedPost.id, editedPost.title, editedPost.content, image);
+    }
+
     const url = this.POSTS_URL + '/' + editedPost.id;
-    this.http.put<RestPutPostResponse>(url, editedPost)
+    this.http.put<RestPutPostResponse>(url, postData)
         .subscribe((restResponse: RestPutPostResponse) => {
           console.log('Receiving from PUT ' + url);
           console.log(restResponse);
           // update the edited post in the allPost array
           this.allPosts = this.allPosts.map((post: Post) => {
             if (post.id == post.id) {
-              return editedPost;
+              return new Post(editedPost.id, editedPost.title, editedPost.content, restResponse.post.imagePath);
             } else {
               return post;
             }
@@ -109,11 +136,7 @@ export class PostService {
             console.log('Receiving from GET ' + this.POSTS_URL);
             console.log(mongoPosts);
             return mongoPosts.posts.map( post => {
-              return {
-                title: post.title,
-                content: post.content,
-                id: post._id
-              };
+              return new Post(post._id, post.title, post.content, post.imagePath);
             })
           }
         ))

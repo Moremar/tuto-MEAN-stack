@@ -1,4 +1,5 @@
 // Packages from NPM
+const path = require('path');
 const express = require('express');
 const bodyParser = require("body-parser");
 const mongoose = require('mongoose');
@@ -38,6 +39,10 @@ const app = express();
 // Express middleware to parse the POST/PUT requests body and make it available under request.body
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+
+
+// requests starting with /images serve files under backend/images
+app.use('/images', express.static(path.join("backend/images")));
 
 
 // first custom middleware to apply some common headers

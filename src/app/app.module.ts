@@ -1,6 +1,6 @@
 // Angular imports
 import { BrowserModule } from '@angular/platform-browser';
-import {FormsModule} from '@angular/forms';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { NgModule } from '@angular/core';
 import { MatInputModule, MatCardModule,
          MatButtonModule, MatToolbarModule,
@@ -25,6 +25,7 @@ import { PostListComponent } from './posts/post-list/post-list.component';
   imports: [
     BrowserModule,
     FormsModule,
+    ReactiveFormsModule,
     /* Custom routing for our app */
     AppRoutingModule,
     /* Angular Material modules */

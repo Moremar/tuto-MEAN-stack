@@ -3,6 +3,27 @@ mat-spinner {
     margin: auto;
 }
 
+.uploadImageDiv {
+    margin-bottom: 10px;
+}
+
+/*
+ * Hide the default file picker (that has no Material style)
+ * When the custom "Add image" button is clicked, we simulate a click on this file picker
+ */
+input[type="file"] {
+    visibility: hidden;;
+}
+
+.preview {
+    height: 5rem;  /* rem = root element font size */
+    margin: 1rem 0;
+}
+
+.preview img {
+    height: 100%;   /* max height is 100% of the container */
+}
+
 mat-form-field,
 textarea {
     width: 100%;

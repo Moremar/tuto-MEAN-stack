@@ -93,8 +93,10 @@ SETUP
     $>  npm install --save mongodb       // default package for MongoDB (we are not using it here)
     $>  npm install --save mongoose      // schema-oriented Node.js package for MongoDB
 
+- File upload
+  ~ Uploading files from Angular to Node.js requires Multer :
+    $>  npm install --save multer
 
-     admin / 2CdjMdbZ6pchCAp
 
 
 ANGULAR
@@ -114,6 +116,10 @@ Each middleware can either respond to the query or enrich it and send it to the 
 We use some specific middleware for each route that the REST API supports.
 These routes can either be handled directly from the main file (with app.use() / app.get() ...) or
 grouped per API section into a router in a dedicated files and imported with app.use(router).
+
+~ File upload
+  We can use Multer middleware to upload files in Node.js :
+  https://github.com/expressjs/multer
 
 
 MongoDB
