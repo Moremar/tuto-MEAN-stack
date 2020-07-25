@@ -5,6 +5,7 @@ import { Router, ActivatedRoute, ParamMap } from '@angular/router';
 // Internal imports
 import { Post } from '../model/post.model';
 import { PostService } from '../post.service';
+import { mimeType } from './mime-type.validator';
 
 
 @Component({
@@ -27,6 +28,10 @@ export class PostCreateComponent implements OnInit {
   // URL of the image of the post
   imagePreview: string = null;
 
+  // set to true on validate to display error message for missing image
+  // (not used for Material inputs since already handled)
+  mustValidate = false;
+
   constructor(private router: Router, 
               private activeRoute: ActivatedRoute,
               private postService: PostService) {}
@@ -38,7 +43,7 @@ export class PostCreateComponent implements OnInit {
       'title': new FormControl(null, {validators: [Validators.required, Validators.minLength(3)]}),
       'content': new FormControl(null, {validators: [Validators.required]}),
       // we validate the image selected, but no control in the HTML actually binds to it
-      'image': new FormControl(null, {validators: Validators.required})
+      'image': new FormControl(null, {validators: Validators.required, asyncValidators: mimeType})
     });
   
     // if this component is loaded from the /edit/:id route, it has the ID of the post to edit
@@ -85,6 +90,7 @@ export class PostCreateComponent implements OnInit {
   onSavePost(): void {
     if (this.postForm.invalid) {
       // the validation in the HTML will show the error
+      this.mustValidate = true;
       return;
     }
 

@@ -24,6 +24,16 @@ input[type="file"] {
     height: 100%;   /* max height is 100% of the container */
 }
 
+.invalidImageError {
+    /* mimic the style of the mat-error (not usable here since no actual matInput) */
+    font-size: 75%;
+    color: #f44336;
+    font-weight: 400;
+    padding-left:10px;
+    line-height: 1.125;
+    font-family: Roboto,"Helvetica Neue",sans-serif;
+}
+
 mat-form-field,
 textarea {
     width: 100%;
