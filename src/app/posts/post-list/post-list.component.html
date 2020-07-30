@@ -23,6 +23,7 @@
             </mat-action-row>
         </mat-expansion-panel>
     </mat-accordion>
+    <mat-paginator *ngIf="posts.length > 0" [length]="numberOfPosts" [pageIndex]="pageIndex" [pageSize]="pageSize" [pageSizeOptions]="pageSizeOptions" (page)="onPageChanged($event)"></mat-paginator>
     <!-- use Material class to style the text -->
     <p class="noPostMess mat-body-1" *ngIf="posts.length == 0">There are no posts.</p>
 </div>

@@ -4,7 +4,8 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { NgModule } from '@angular/core';
 import { MatInputModule, MatCardModule,
          MatButtonModule, MatToolbarModule,
-         MatExpansionModule, MatProgressSpinnerModule } from '@angular/material';
+         MatExpansionModule, MatProgressSpinnerModule,
+         MatPaginatorModule } from '@angular/material';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
 // Internal imports
@@ -36,6 +37,7 @@ import { PostListComponent } from './posts/post-list/post-list.component';
     MatToolbarModule,
     MatExpansionModule,
     MatProgressSpinnerModule,
+    MatPaginatorModule,
     HttpClientModule
   ],
   providers: [],

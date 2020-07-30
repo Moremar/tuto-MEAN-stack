@@ -19,10 +19,10 @@ export class PostService {
   private POSTS_URL = 'http://localhost:3000/api/posts';
 
   // keep all posts in memory so we do not need to re-fetch all posts at every change
-  private allPosts: Post[] = [];
 
-  // private Subject to prevent to next() from outside this class
-  private postsChanged = new Subject<Post[]>();    // give all posts when changed
+  // private Subjects to prevent to next() from outside this class
+  private postsChanged = new Subject<Post[]>();    // give all posts to display when changed
+  private totalPostsObs = new Subject<number>();    // give the total number of posts
 
   constructor(private http: HttpClient,
               private router: Router) {}
@@ -33,6 +33,10 @@ export class PostService {
     return this.postsChanged.asObservable();
   }
 
+  getTotalPostsObservable(): Observable<number> {
+    return this.totalPostsObs.asObservable();
+  }
+
 
   // get an observable on a specific post in the backend
   getPostObservable(postId: string): Observable<Post> {
@@ -40,7 +44,7 @@ export class PostService {
         .pipe(
           map((restResponse: RestGetPostResponse) => {
             // convert to Frontend post format
-            return new Post(restResponse.post._id, 
+            return new Post(restResponse.post._id,
                             restResponse.post.title,
                             restResponse.post.content,
                             restResponse.post.imagePath);
@@ -50,7 +54,7 @@ export class PostService {
 
 
   // create a new post in the backend and refresh the posts list
-  createPost(newPost: Post, image: File): void {
+  createPost(newPost: Post, image: File): Observable<Post> {
     console.log('Creating post ' + newPost.title + ' / ' + newPost.content);
 
     // Use a FormData instead of JSON since we need both k/v and a file
@@ -59,28 +63,28 @@ export class PostService {
     postData.append('content', newPost.content);
     postData.append('image', image, newPost.title);
 
-    this.http.post<RestPostPostResponse>(this.POSTS_URL, postData)
-        .subscribe((restResponse: RestPostPostResponse) => {
-          console.log('Receiving from POST ' + this.POSTS_URL);
-          console.log(restResponse);
-          // add the new post in the allPost array
-          newPost.id = restResponse.post._id;
-          newPost.imagePath = restResponse.post.imagePath;
-          this.allPosts.push(newPost);
-          this.refreshPosts();
-          this.router.navigate(['list']);
-        });
+    return this.http.post<RestPostPostResponse>(this.POSTS_URL, postData)
+        .pipe(map(
+          (restResponse: RestPostPostResponse) => {
+            console.log('Receiving from POST ' + this.POSTS_URL);
+            console.log(restResponse);
+            // add the new post in the allPost array
+            newPost.id = restResponse.post._id;
+            newPost.imagePath = restResponse.post.imagePath;
+            return newPost;
+          }
+        ));
   }
 
 
    // edit an existing post in the backend and refresh the posts list
-   editPost(editedPost: Post, image: File | string): void {
+   editPost(editedPost: Post, image: File | string): Observable<Post> {
     console.log('Editing post ' + editedPost.id + ' : ' + editedPost.title + ' / '  + editedPost.content);
 
     // the image can be either a file (if uploading a new file)
     // or an image URL (if keeping the previous one)
     let postData: Post | FormData;
-    if (typeof(image) == 'object') {
+    if (typeof(image) === 'object') {
       // the file must be uploaded, we need to use a Form data for the body of the POST REST call
       postData = new FormData();
       postData.append('id', editedPost.id);
@@ -93,64 +97,55 @@ export class PostService {
     }
 
     const url = this.POSTS_URL + '/' + editedPost.id;
-    this.http.put<RestPutPostResponse>(url, postData)
-        .subscribe((restResponse: RestPutPostResponse) => {
-          console.log('Receiving from PUT ' + url);
-          console.log(restResponse);
-          // update the edited post in the allPost array
-          this.allPosts = this.allPosts.map((post: Post) => {
-            if (post.id == post.id) {
-              return new Post(editedPost.id, editedPost.title, editedPost.content, restResponse.post.imagePath);
-            } else {
-              return post;
-            }
-          });
-          this.refreshPosts();
-          this.router.navigate(['list']);
-        });
+    return this.http.put<RestPutPostResponse>(url, postData)
+        .pipe(map(
+          (restResponse: RestPutPostResponse) => {
+            console.log('Receiving from PUT ' + url);
+            console.log(restResponse);
+            return new Post(restResponse.post._id,
+                            restResponse.post.title,
+                            restResponse.post.content,
+                            restResponse.post.imagePath);
+          }
+      ));
   }
 
 
   // delete a post in the backend and refresh the posts list
-  deletePost(postId: string): void {
+  deletePost(postId: string): Observable<string> {
     console.log('Deleting post ' + postId);
     const url = this.POSTS_URL + '/' + postId;
-    this.http.delete<RestDeletePostResponse>(url)
-        .subscribe( (restResponse: RestDeletePostResponse) => {
+    return this.http.delete<RestDeletePostResponse>(url)
+      .pipe(map(
+        (restResponse: RestDeletePostResponse) => {
           console.log('Receiving from DELETE ' + url);
           console.log(restResponse);
-          // force to refetch the posts so other parts of the code get the change
-          this.allPosts = this.allPosts.filter( (post: Post) => { return post.id != postId; });
-          this.refreshPosts();
-        });
+          return restResponse.id;
+        }
+      ));
   }
 
 
   // refresh the posts list from the backend
-  fetchPosts(): void {
-    this.http.get<RestGetPostsResponse>(this.POSTS_URL)
+  fetchPosts(pageIndex: number, pageSize: number): void {
+    console.log('FETCHING ' + pageIndex + '/' + pageSize);
+    const url = this.POSTS_URL + '?pageIndex=' + pageIndex + '&pageSize=' + pageSize;
+    this.http.get<RestGetPostsResponse>(url)
         .pipe(
           // reshape the data from the backend to turn it into a list of Post elements
           // following the model of the front end (rename _id to id)
           map( (mongoPosts: RestGetPostsResponse) => {
-            console.log('Receiving from GET ' + this.POSTS_URL);
+            console.log('Receiving from GET ' + url);
             console.log(mongoPosts);
+            this.totalPostsObs.next(mongoPosts.total);
             return mongoPosts.posts.map( post => {
               return new Post(post._id, post.title, post.content, post.imagePath);
-            })
+            });
           }
         ))
         // subcribe to the new Post array to update the GUI with it
         .subscribe((posts: Post[]) => {
-          this.allPosts = posts;
-          this.refreshPosts();
+          this.postsChanged.next(posts);
         });
-  }
-
-
-  // let the other parts of the app know about the current posts
-  refreshPosts(): void {
-    // send a copy of the allPosts array
-    this.postsChanged.next(this.allPosts.slice());
   }
 }

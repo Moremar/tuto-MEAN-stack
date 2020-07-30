@@ -32,20 +32,20 @@ export class PostCreateComponent implements OnInit {
   // (not used for Material inputs since already handled)
   mustValidate = false;
 
-  constructor(private router: Router, 
+  constructor(private router: Router,
               private activeRoute: ActivatedRoute,
               private postService: PostService) {}
 
-  
+
   ngOnInit() {
     // create the form
     this.postForm = new FormGroup({
-      'title': new FormControl(null, {validators: [Validators.required, Validators.minLength(3)]}),
-      'content': new FormControl(null, {validators: [Validators.required]}),
+      title: new FormControl(null, {validators: [Validators.required, Validators.minLength(3)]}),
+      content: new FormControl(null, {validators: [Validators.required]}),
       // we validate the image selected, but no control in the HTML actually binds to it
-      'image': new FormControl(null, {validators: Validators.required, asyncValidators: mimeType})
+      image: new FormControl(null, {validators: Validators.required, asyncValidators: mimeType})
     });
-  
+
     // if this component is loaded from the /edit/:id route, it has the ID of the post to edit
     this.activeRoute.paramMap.subscribe((paramMap: ParamMap) => {
       this.editionMode = paramMap.has('id');
@@ -58,9 +58,9 @@ export class PostCreateComponent implements OnInit {
           this.loading = false;
           // pre-poluate the form with the edited post
           this.postForm.setValue({
-            'title': this.editedPost.title,
-            'content': this.editedPost.content,
-            'image': this.editedPost.imagePath,
+            title: this.editedPost.title,
+            content: this.editedPost.content,
+            image: this.editedPost.imagePath,
           });
           // display the preview in the HTML as well
           this.imagePreview = this.editedPost.imagePath;
@@ -75,14 +75,14 @@ export class PostCreateComponent implements OnInit {
     // store the file itself in the form (not the path, the actual file)
     this.postForm.patchValue({image: selectedFile});
     this.postForm.controls.image.updateValueAndValidity();
-     console.log('Selected file ' + selectedFile.name);
+    console.log('Selected file ' + selectedFile.name);
 
-     const fileReader = new FileReader();
-     // callback to apply once a file is read by the reader
-     fileReader.onload = () => {
-        this.imagePreview = fileReader.result as string;  // readAsDataURL returns a string
-     };
-     fileReader.readAsDataURL(selectedFile);
+    const fileReader = new FileReader();
+    // callback to apply once a file is read by the reader
+    fileReader.onload = () => {
+      this.imagePreview = fileReader.result as string;  // readAsDataURL returns a string
+    };
+    fileReader.readAsDataURL(selectedFile);
   }
 
 
@@ -102,11 +102,20 @@ export class PostCreateComponent implements OnInit {
     this.editedPost.content = this.postForm.value.content;
 
     if (this.editionMode) {
-      this.postService.editPost(this.editedPost, this.postForm.value.image);
+      this.postService.editPost(this.editedPost, this.postForm.value.image).subscribe(
+        (_: Post) => {
+          // no need to re-fetch, it will be done on navigate
+          this.router.navigate(['list']);
+        }
+      );
     } else {
-      this.postService.createPost(this.editedPost, this.postForm.value.image);
+      this.postService.createPost(this.editedPost, this.postForm.value.image).subscribe(
+        (_: Post) => {
+          // no need to re-fetch, it will be done on navigate
+          this.router.navigate(['list']);
+        }
+      );
     }
-    // the post service will automatically redirect to /list once the save is done in DB
   }
 
 

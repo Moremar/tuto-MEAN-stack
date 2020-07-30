@@ -10,6 +10,7 @@ export interface RestPost {
 export interface RestGetPostsResponse {
     message: string;
     posts: RestPost[];
+    total: number;
 }
 
 // REST response from the backend on GET /api/posts/:id
