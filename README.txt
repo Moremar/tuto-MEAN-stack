@@ -92,11 +92,17 @@ SETUP
   ~ Angular MongoDB packages
     $>  npm install --save mongodb       // default package for MongoDB (we are not using it here)
     $>  npm install --save mongoose      // schema-oriented Node.js package for MongoDB
+    $>  npm install --save mongoose-unique-validator
 
 - File upload
   ~ Uploading files from Angular to Node.js requires Multer :
     $>  npm install --save multer
 
+- Password encryption
+    $>  npm install --save bcrypt
+
+- JWT (Json Web Token) for authentication tokens
+    $>  npm install --save jsonwebtoken
 
 
 ANGULAR
@@ -121,12 +127,21 @@ grouped per API section into a router in a dedicated files and imported with app
   We can use Multer middleware to upload files in Node.js :
   https://github.com/expressjs/multer
 
+~ Authentication
+  In Single-page application, we cannot use sessions so we use a token for authentication.
+  On login, the server sends a token to the client.
+  This token then needs to be attached to all requests from the client to the server.
+  The server validates that the token is correct before processing the request.
+  We use JWT (Json Web Token) for the tokens : https://jwt.io/
+  The token is valid only a short period of time (1h here) and after expiration the user must login again.
+
+
 
 MongoDB
 -------
 
 NoSQL database storing collections of documents in JSON format.
-We will access it with Mongoose, a NodeJS module above the official MongoDB driver that lets us 
+We will access it with Mongoose, a NodeJS module above the official MongoDB driver that lets us
 easily create collection schemas and represent documents with Javascipt objects.
 
 For each collection in MongoDB we want to interact with, we create a file and export the model for that collection (made

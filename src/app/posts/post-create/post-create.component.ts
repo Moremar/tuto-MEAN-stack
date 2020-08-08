@@ -17,7 +17,7 @@ export class PostCreateComponent implements OnInit {
 
   // if we are in editing mode, this is the post being edited, else it is a new post
   private editedPost: Post = new Post(null, null, null, null);
-  private editionMode = false;
+  editionMode = false;
 
   // a spinner is displayed if loading
   loading = false;

@@ -1,5 +1,7 @@
 const express = require('express');
 const multer = require('multer');
+const verifyAuth = require('../middlewares/verify-auth');
+
 
 // Mongoose models for MongoDB collections
 const Post = require('../models/post');
@@ -45,7 +47,9 @@ const multerConfig = multer.diskStorage({
     }
 });
 
+
 // middleware to get all posts
+// no authentication required
 router.get('/',
     (request, response, _next) => {
         console.log('Middleware: GET ' + request.originalUrl);
@@ -78,6 +82,7 @@ router.get('/',
 
 
 // middleware to get a single post
+// no authentication required
 router.get('/:id',
     (request, response, _next) => {
         const postId = request.params.id;
@@ -95,7 +100,11 @@ router.get('/:id',
 
 
 // middleware for the post creation
+// authentication required
 router.post('/',
+    // check that the user is authenticated
+    verifyAuth,
+
     // use Multer to parse the image file (single file stored in the "image" field of the body)
     multer({ storage: multerConfig }).single("image"),
 
@@ -129,7 +138,11 @@ router.post('/',
 
 
 // middleware to edit a post
+// authentication required
 router.put('/:id',
+    // check that the user is authenticated
+    verifyAuth,
+
     // use Multer to parse the image file (single file stored in the "image" field of the body)
     // If a new image is provided, then the "image" field is provided and Multer will read it
     // If no new image is provided, then the "imagePath" field is provided and we can keep it as-is
@@ -169,7 +182,11 @@ router.put('/:id',
 
 
 // middleware to delete a post
+// authentication required
 router.delete('/:id',
+    // check that the user is authenticated
+    verifyAuth,
+
     (request, response, _next) => {
         const postId = request.params.id;
         console.log('Middleware: DELETE /api/posts/' + postId);

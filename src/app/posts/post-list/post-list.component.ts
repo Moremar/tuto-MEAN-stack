@@ -6,6 +6,7 @@ import { Subscription } from 'rxjs';
 // Internal imports
 import { Post } from '../model/post.model';
 import { PostService } from '../post.service';
+import { AuthService } from 'src/app/auth/auth.service';
 
 
 @Component({
@@ -16,11 +17,15 @@ import { PostService } from '../post.service';
 export class PostListComponent implements OnInit, OnDestroy {
 
   posts: Post[] = [];
-  private postsSub: Subscription;
-  private totalSub: Subscription;
+  private postsSub: Subscription = null;
+  private totalSub: Subscription = null;
 
   // a spinner is displayed if loading
   loading = false;
+
+  // Edit/Delete posts only available if logged in
+  loggedIn = false;
+  private loggedInSub: Subscription = null;
 
   // paginator fields
   numberOfPosts = 0;
@@ -29,12 +34,20 @@ export class PostListComponent implements OnInit, OnDestroy {
   pageSizeOptions = [2, 5, 10];
 
   constructor(private router: Router,
-              private postService: PostService) {
+              private postService: PostService,
+              private authService: AuthService) {
   }
 
 
   ngOnInit() {
     this.loading = true;
+    // check if user is logged in
+    this.authService.authenticatedListener.subscribe(
+      authenticated => {
+        console.log('Logged in = ' + authenticated);
+        this.loggedIn = authenticated;
+      }
+    );
     // fetch the posts from the backend
     this.postService.fetchPosts(this.pageIndex, this.pageSize);
     // listen to any change on the posts
@@ -53,6 +66,9 @@ export class PostListComponent implements OnInit, OnDestroy {
 
 
   ngOnDestroy() {
+    if (this.loggedInSub) {
+      this.loggedInSub.unsubscribe();
+    }
     if (this.postsSub) {
       this.postsSub.unsubscribe();
     }

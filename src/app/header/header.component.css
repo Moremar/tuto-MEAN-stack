@@ -1,5 +1,6 @@
-.menu-spacer {
-    padding: 0 10px;
+mat-toolbar {
+    display: flex;
+    justify-content: space-between;
 }
 
 a.mat-button {

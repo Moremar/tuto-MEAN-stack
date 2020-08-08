@@ -17,7 +17,7 @@
             <!-- body of the panel visible only when expanded -->
             <p>{{ post.content }}</p>
             <!-- action buttons visible only when expanded -->
-            <mat-action-row>
+            <mat-action-row *ngIf="loggedIn">
                 <button mat-button color="primary" (click)="onEdit(post)">Edit</button>
                 <button mat-button color="primary" (click)='onDelete(post.id)'>Delete</button>
             </mat-action-row>

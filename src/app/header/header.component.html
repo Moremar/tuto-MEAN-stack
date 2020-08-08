@@ -1,8 +1,10 @@
 <mat-toolbar color="primary">
-    <span>My Post App</span>
-    <span class="menu-spacer"></span>
-    <div>
-      <a mat-button [routerLink]="'/list'" routerLinkActive="active-link"> Posts </a>
-      <a mat-button [routerLink]="'/create'" routerLinkActive="active-link"> Create post </a>
+    <div>My Post App</div>
+    <div class="links">
+        <a mat-button [routerLink]="'/list'" routerLinkActive="active-link"> Posts </a>
+        <a *ngIf="loggedIn" mat-button [routerLink]="'/create'" routerLinkActive="active-link"> Create post </a>
+        <a *ngIf="!loggedIn" mat-button [routerLink]="'/login'" routerLinkActive="active-link"> Login </a>
+        <a *ngIf="!loggedIn" mat-button [routerLink]="'/signup'" routerLinkActive="active-link"> Signup </a>
+        <button *ngIf="loggedIn" class="mat-button" (click)="onLogout()">Logout</button>
     </div>
 </mat-toolbar>
