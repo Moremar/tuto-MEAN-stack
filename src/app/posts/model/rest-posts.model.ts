@@ -1,6 +1,8 @@
 // REST reprensetation of a post fetched from the the backend
 export interface RestPost {
     _id: string;
+    userId: string;
+    username: string;
     title: string;
     content: string;
     imagePath: string;

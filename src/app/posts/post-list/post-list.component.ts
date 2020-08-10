@@ -5,6 +5,7 @@ import { PageEvent } from '@angular/material';
 import { Subscription } from 'rxjs';
 // Internal imports
 import { Post } from '../model/post.model';
+import { User } from 'src/app/auth/model/user.model';
 import { PostService } from '../post.service';
 import { AuthService } from 'src/app/auth/auth.service';
 
@@ -24,8 +25,8 @@ export class PostListComponent implements OnInit, OnDestroy {
   loading = false;
 
   // Edit/Delete posts only available if logged in
-  loggedIn = false;
-  private loggedInSub: Subscription = null;
+  loggedInUser: User = null;
+  private loggedInUserSub: Subscription = null;
 
   // paginator fields
   numberOfPosts = 0;
@@ -42,10 +43,9 @@ export class PostListComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.loading = true;
     // check if user is logged in
-    this.authService.authenticatedListener.subscribe(
-      authenticated => {
-        console.log('Logged in = ' + authenticated);
-        this.loggedIn = authenticated;
+    this.loggedInUserSub = this.authService.loggedInUserListener.subscribe(
+      user => {
+        this.loggedInUser = user;
       }
     );
     // fetch the posts from the backend
@@ -66,8 +66,8 @@ export class PostListComponent implements OnInit, OnDestroy {
 
 
   ngOnDestroy() {
-    if (this.loggedInSub) {
-      this.loggedInSub.unsubscribe();
+    if (this.loggedInUserSub) {
+      this.loggedInUserSub.unsubscribe();
     }
     if (this.postsSub) {
       this.postsSub.unsubscribe();

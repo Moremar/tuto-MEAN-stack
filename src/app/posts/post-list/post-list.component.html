@@ -8,7 +8,8 @@
             <!-- header of the panel always visible -->
             <mat-expansion-panel-header>
                 <mat-panel-title>
-                    {{ post.title }}
+                    <span class="username">{{ post.username }}</span>
+                    <span class="postTitle">{{ post.title }}</span>
                 </mat-panel-title>
             </mat-expansion-panel-header>
             <div class="postImage">
@@ -17,7 +18,7 @@
             <!-- body of the panel visible only when expanded -->
             <p>{{ post.content }}</p>
             <!-- action buttons visible only when expanded -->
-            <mat-action-row *ngIf="loggedIn">
+            <mat-action-row *ngIf="loggedInUser != null && loggedInUser.id == post.userId">
                 <button mat-button color="primary" (click)="onEdit(post)">Edit</button>
                 <button mat-button color="primary" (click)='onDelete(post.id)'>Delete</button>
             </mat-action-row>

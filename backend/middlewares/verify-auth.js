@@ -2,6 +2,9 @@ const jwt = require('jsonwebtoken');
 
 /**
  * Middleware to check the validity of the JSON web token attached to the request
+ * If the token is valid, it attaches the user info to the request
+ * This info will be used to ensure the user only deletes his own posts for ex
+ * It is better than taking the user from the HTTP request because it can not be altered
  *
  * A middleware is just a JS file that exports a function to apply
  * to the incoming request
@@ -19,8 +22,9 @@ module.exports = (request, result, next) => {
 
         // ensure it is not altered (throw if error)
         jwt.verify(token, SECRET_JWT_ENCRYPTION_KEY);
-        console.debug("DEBUG - Decoded token : ");
-        console.debug(jwt.decode(token));
+
+        // enrich the request with the auth info
+        request.auth = jwt.decode(token);
 
         // token is valid, continue to the next middleware
         next();

@@ -1,9 +1,12 @@
+// Angular imports
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
-
+// Internal imports
+import { User } from './model/user.model';
 import { Credentials } from './model/credentials.model';
+import { StoredUserData } from './model/StoredUserData.model';
 import { RestPostAuthLoginResponse, RestPostAuthSignupResponse } from './model/rest-auth.model';
 
 
@@ -13,7 +16,7 @@ import { RestPostAuthLoginResponse, RestPostAuthSignupResponse } from './model/r
 export class AuthService {
 
   private token: string = null;
-  authenticatedListener = new BehaviorSubject<boolean>(false);
+  loggedInUserListener = new BehaviorSubject<User>(null);
 
   // timer to auto-logout on authentication token expiration
   private autoLogoutTimer: any = null;
@@ -34,18 +37,19 @@ export class AuthService {
     clearTimeout(this.autoLogoutTimer);
     this._deleteTokenFromStorage();
     this.token = null;
-    this.authenticatedListener.next(false);
+    this.loggedInUserListener.next(null);
     this.router.navigate(['login']);
   }
 
 
-  signup(email: string, password: string) {
-    const credentials = new Credentials(email, password);
+  signup(username: string, email: string, password: string) {
+    const credentials = new Credentials(username, email, password);
     this.http.post<RestPostAuthSignupResponse>(this.AUTH_URL + '/signup', credentials).subscribe(
       (signupResponse: RestPostAuthSignupResponse) => {
         console.log(signupResponse);
         console.log('You are signed up now !');
-        this.router.navigate(['login']);
+        // automatically login the new created user
+        this.login(email, password);
       },
       (errorResponse: RestPostAuthSignupResponse) => {
         console.log(errorResponse);
@@ -56,14 +60,16 @@ export class AuthService {
 
 
   login(email: string, password: string) {
-    const credentials = new Credentials(email, password);
+    const credentials = new Credentials(null, email, password);
     this.http.post<RestPostAuthLoginResponse>(this.AUTH_URL + '/login', credentials).subscribe(
       (loginResponse: RestPostAuthLoginResponse) => {
         console.log(loginResponse);
 
         // store the token in local storage and in memory
         // it is attached to all requests needing authentication by the auth-interceptor
-        this._saveTokenInStorage(loginResponse.token, loginResponse.expiresIn);
+        const user = new User(loginResponse.user._id, loginResponse.user.username, loginResponse.user.email);
+        const userData = new StoredUserData(user, loginResponse.token, loginResponse.expiresIn);
+        this._saveTokenInStorage(userData);
         this.autoLogin();
         this.router.navigate(['list']);
       },
@@ -79,8 +85,8 @@ export class AuthService {
   // try to login from the token in local storage
   autoLogin() {
     console.log('Look for auth token in local storage.');
-    const storedTokenInfo = this._readFromStorage();
-    if (!storedTokenInfo || storedTokenInfo.expiresIn < 0) {
+    const userData = this._readFromStorage();
+    if (!userData || userData.expiresIn < 0) {
       // no token or expired token
       console.log('No token found, cannot auto-login.');
       this._deleteTokenFromStorage();
@@ -88,10 +94,11 @@ export class AuthService {
     }
     // successful authentication
     console.log('Auth token found :');
-    console.log(storedTokenInfo);
-    this.token = storedTokenInfo.token;
-    this.authenticatedListener.next(true);
-    this._scheduleAutoLogout(storedTokenInfo.expiresIn);
+    console.log(userData);
+
+    this.token = userData.token;
+    this.loggedInUserListener.next(new User(userData.user.id, userData.user.username, userData.user.email));
+    this._scheduleAutoLogout(userData.expiresIn);
   }
 
 
@@ -107,27 +114,29 @@ export class AuthService {
   }
 
 
-  private _saveTokenInStorage(token: string, expiresIn: number) {
-    const expiresInMs = expiresIn * 1000;
+  private _saveTokenInStorage(userData: StoredUserData) {
     const now = new Date();
-    const expirationDate = new Date(now.getTime() + expiresInMs);
-    localStorage.setItem('token', token);
+    const expirationDate = new Date(now.getTime() + userData.expiresIn);
+    localStorage.setItem('id', userData.user.id);
+    localStorage.setItem('username', userData.user.username);
+    localStorage.setItem('email', userData.user.email);
+    localStorage.setItem('token', userData.token);
     localStorage.setItem('expirationDate', expirationDate.toISOString());
   }
 
 
-  private _readFromStorage() {
-    const tokenStr = localStorage.getItem('token');
+  private _readFromStorage(): StoredUserData {
+    const userId = localStorage.getItem('id');
+    const username = localStorage.getItem('username');
+    const email = localStorage.getItem('email');
+    const token = localStorage.getItem('token');
     const expirationDateStr = localStorage.getItem('expirationDate');
-    if (!tokenStr || !expirationDateStr) {
+    if (!token || !expirationDateStr) {
       return null;
     }
     const expirationDate: Date = new Date(expirationDateStr);
     const now: Date = new Date();
-    return {
-      token: tokenStr,
-      expiresIn: expirationDate.getTime() - now.getTime()
-    };
+    return new StoredUserData(new User(userId, username, email), token, expirationDate.getTime() - now.getTime())
   }
 
 

@@ -105,6 +105,14 @@ SETUP
     $>  npm install --save jsonwebtoken
 
 
+START THE APP
+-------------
+
+  $> npm install              // install locally modules from package.json
+  $> nodemon server.js        // start backend
+  $> ng serve -o              // start frontend 
+
+
 ANGULAR
 -------
 

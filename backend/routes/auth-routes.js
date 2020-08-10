@@ -11,9 +11,13 @@ const User = require('../models/user');
 /*
  * All REST API routes for the /api/auth section (login / signup)
  *
- * Note : All error messages are very explicit to make testing easier.
- * In a real app we should stick to "Invalid credentials" to not give hints on the
- * existence or not of a user with a given email.
+ * Notes : 
+ *  - All error messages are very explicit to make testing easier.
+ *    In a real app we should stick to "Invalid credentials" to not give hints on the
+ *    existence or not of a user with a given email.
+ *  - Only the hash should be stored, not the password.
+ *    For now we store the password and return it in the "user" object of the API for easy testing
+ *    The GUI does not use it and it should be removed once stable
  */
 
 const router = express.Router();
@@ -24,7 +28,8 @@ const router = express.Router();
 router.post('/signup',
     (request, response, _next) => {
         console.log('Middleware: POST ' + request.originalUrl);
-        const email = request.body.email;
+        const username = request.body.username;
+        const email    = request.body.email;
         const password = request.body.password;
         console.log('Create user ' + email + "/" + password);
 
@@ -51,15 +56,22 @@ router.post('/signup',
                         }
                         // the account does not exist, create it
                         const newUser = new User({
+                            username: username,
                             email: email,
-                            password: password,
+                            password: password,        // TODO remove
                             hash: hash
                         });
                         newUser.save().then(
                             (createdUser) => {
                                 response.status(201).json({
                                     message: "Signup OK",
-                                    user: createdUser
+                                    user: {
+                                        // do not send password and hash
+                                        _id: createdUser._id, 
+                                        username: createdUser.username,
+                                        email: createdUser.email,
+                                        password: createdUser.password     // TODO remove
+                                    }
                                 });
                             }
                         );
@@ -153,14 +165,20 @@ router.post('/login',
                     .then((bcryptValid) => {
                         if (bcryptValid) {
                             // generate a Web Token
-                            const jwtToken = jwt.sign({ email: user.email, id: user._id },
+                            const jwtToken = jwt.sign({ userId: user._id, username: user.username, email: user.email },
                                 SECRET_JWT_ENCRYPTION_KEY, { expiresIn: "1h" }
                             );
                             return response.status(200).json({
                                 message: 'Login user successfully.',
-                                user: user, // only for debug, should not be in final code
                                 token: jwtToken,
-                                expiresIn: 3600 // number od seconds before token expiration
+                                expiresIn: 3600 * 1000,  // number of ms before token expiration
+                                user: {
+                                    // do not send password and hash
+                                    _id: user._id, 
+                                    username: user.username,
+                                    email: user.email,
+                                    password: user.password     // TODO remove
+                                }, 
                             });
                         } else {
                             return response.status(401).json({

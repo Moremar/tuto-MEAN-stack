@@ -2,8 +2,8 @@
 // TODO remove if not needed, should not have a password anyway
 export interface RestUser {
   _id: string;
+  username: string;
   email: string;
-  password: string;
 }
 
 // REST response from the backend on GET /api/auth/login

@@ -3,6 +3,18 @@ mat-toolbar {
     justify-content: space-between;
 }
 
+.loggedAs {
+    width: 100%;
+    text-align: right;
+}
+
+.loggedAs div {
+    margin: 5px;
+    font-size: 0.8em;
+    color: #673ab7;
+
+}
+
 a.mat-button {
     margin: 0 2px;
 }

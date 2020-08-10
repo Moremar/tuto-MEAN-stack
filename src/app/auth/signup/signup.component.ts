@@ -20,10 +20,11 @@ export class SignupComponent implements OnInit {
     if (signupForm.invalid) {
       return;
     }
+    const username = signupForm.value.username;
     const email = signupForm.value.email;
     const password = signupForm.value.password;
-    console.log('Trying to signup with ' + email + '/' + password);
+    console.log('Trying to signup with ' + username + '/' + email + '/' + password);
 
-    this.authService.signup(email, password);
+    this.authService.signup(username, email, password);
   }
 }

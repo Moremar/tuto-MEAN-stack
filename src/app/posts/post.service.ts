@@ -45,6 +45,8 @@ export class PostService {
           map((restResponse: RestGetPostResponse) => {
             // convert to Frontend post format
             return new Post(restResponse.post._id,
+                            restResponse.post.userId,
+                            restResponse.post.username,
                             restResponse.post.title,
                             restResponse.post.content,
                             restResponse.post.imagePath);
@@ -93,7 +95,13 @@ export class PostService {
       postData.append('image', image, editedPost.title);
     } else {
       // no new file to upload, we can send a JSON object for the PUT body
-      postData = new Post(editedPost.id, editedPost.title, editedPost.content, image);
+      postData = new Post(
+        editedPost.id,
+        null,   /* userId unused, it is checked in the backend from the token to ensure authenticity */
+        null,   /* username unused, it is checked in the backend from the token to ensure authenticity */
+        editedPost.title,
+        editedPost.content,
+        image);
     }
 
     const url = this.POSTS_URL + '/' + editedPost.id;
@@ -103,6 +111,8 @@ export class PostService {
             console.log('Receiving from PUT ' + url);
             console.log(restResponse);
             return new Post(restResponse.post._id,
+                            restResponse.post.userId,
+                            restResponse.post.username,
                             restResponse.post.title,
                             restResponse.post.content,
                             restResponse.post.imagePath);
@@ -139,7 +149,7 @@ export class PostService {
             console.log(mongoPosts);
             this.totalPostsObs.next(mongoPosts.total);
             return mongoPosts.posts.map( post => {
-              return new Post(post._id, post.title, post.content, post.imagePath);
+              return new Post(post._id, post.userId, post.username, post.title, post.content, post.imagePath);
             });
           }
         ))

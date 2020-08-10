@@ -5,11 +5,17 @@
     <form (submit)="onLogin(signupForm)" #signupForm="ngForm">
         <!-- user name input -->
         <mat-form-field appearance="fill">
+            <mat-label>Username</mat-label>
+            <input type="text" matInput name="username" ngModel #username="ngModel" required />
+            <mat-error *ngIf="username.invalid">A user name is required.</mat-error>
+        </mat-form-field>
+        <!-- user email input -->
+        <mat-form-field appearance="fill">
             <mat-label>Email</mat-label>
             <input type="email" matInput name="email" ngModel #email="ngModel" required email />
             <mat-error *ngIf="email.invalid">An email is required.</mat-error>
         </mat-form-field>
-        <!-- email input -->
+        <!-- password input -->
         <mat-form-field appearance="fill">
             <mat-label>Password</mat-label>
             <input type="password" matInput name="password" ngModel #password="ngModel" required />

@@ -6,6 +6,7 @@ const uniqueValidator = require('mongoose-unique-validator');
 // definition of the User schema in MongoDB
 // we do not define the ID field because Moongoose automatically creates an _id field.
 const userSchema = mongoose.Schema({
+    username: { type: String, required: true },  // no need to be unique
     email: { type: String, required: true, unique: true }, // "unique" does not check unicity but allows optimization
     password: { type: String, required: true },
     hash: { type: String, required: true },

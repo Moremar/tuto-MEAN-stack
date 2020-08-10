@@ -1,5 +1,7 @@
+// Express packages
 const express = require('express');
 const multer = require('multer');
+// Internal imports
 const verifyAuth = require('../middlewares/verify-auth');
 
 
@@ -66,7 +68,7 @@ router.get('/',
         // get all posts from MongoDB
         mongoQuery.then(
             (posts) => {
-                Post.count().then(
+                Post.countDocuments().then(
                     (total) => {
                         response.status(200).json({
                             message: 'Retrieved posts successfully.',
@@ -89,12 +91,12 @@ router.get('/:id',
         console.log('Middleware: GET /api/posts/' + postId);
         // get the post from MongoDB
         Post.findOne({ _id: postId })
-            .then((post) => {
+        .then((post) => {
                 response.status(200).json({
                     message: 'Retrieved post successfully.',
                     post: post
                 });
-            });
+        });
     }
 );
 
@@ -118,9 +120,13 @@ router.post('/',
         const imagePath = serverUrl + '/images/' + request.file.filename; // request.file is made available by Multer
 
         const post = new Post({
-            title: request.body.title,
-            content: request.body.content,
-            imagePath: imagePath
+            // take user info from the decoded token (so it can not be altered)
+            userId    : request.auth.userId,
+            username  : request.auth.username,
+            // take post info from the request
+            title     : request.body.title,
+            content   : request.body.content,
+            imagePath : imagePath
         });
 
         // save in MongoDB in the current database in collection called "posts" (lower-case plurial name of the model)
@@ -154,28 +160,47 @@ router.put('/:id',
         console.log('Middleware: PUT /api/posts/' + postId);
         console.log(request.body);
 
-        // build image path
-        let imagePath;
-        if (request.file) {
-            // use the URL of the new file created on the server by Multer
-            const serverUrl = request.protocol + '://' + request.get('host');
-            imagePath = serverUrl + '/images/' + request.file.filename; // request.file is made available by Multer
-        } else {
-            // use the URL in the post
-            imagePath = request.body.imagePath;
-        }
+        // check that the post exists and is owned by the authenticated user
+        Post.findOne({ _id: postId }).then(
+            (post) => {
+                // post must exist
+                if (!post) {
+                    return response.status(404).json({
+                        message: 'ERROR - No post with ID ' + postId,
+                        post: null
+                    }); 
+                }
+                // post must belong to authenticated user
+                if (post.userId != request.auth.userId) {
+                    return response.status(401).json({
+                        message: 'ERROR - Post with ID ' + postId + ' belongs to another user.',
+                        post: null
+                    }); 
+                }
 
-        // update a post in MongoDB
-        Post.findByIdAndUpdate({ _id: postId }, {
-                title: request.body.title,
-                content: request.body.content,
-                imagePath: imagePath
-            })
-            .then((updatedPost) => {
-                response.status(200).json({
-                    message: 'Updated post successfully.',
-                    post: updatedPost
-                });
+                // build image path
+                let imagePath;
+                if (request.file) {
+                    // use the URL of the new file created on the server by Multer
+                    const serverUrl = request.protocol + '://' + request.get('host');
+                    imagePath = serverUrl + '/images/' + request.file.filename; // request.file is made available by Multer
+                } else {
+                    // use the URL in the post
+                    imagePath = request.body.imagePath;
+                }
+
+                // update a post in MongoDB
+                Post.findByIdAndUpdate({ _id: postId }, {
+                        title: request.body.title,
+                        content: request.body.content,
+                        imagePath: imagePath
+                    })
+                    .then((updatedPost) => {
+                        response.status(200).json({
+                            message: 'Updated post successfully.',
+                            post: updatedPost
+                        });
+                    });
             });
     }
 );
@@ -190,14 +215,42 @@ router.delete('/:id',
     (request, response, _next) => {
         const postId = request.params.id;
         console.log('Middleware: DELETE /api/posts/' + postId);
-        // delete a post in MongoDB
-        Post.deleteOne({ _id: postId })
-            .then((_deletionResult) => {
-                response.status(200).json({
+
+        Post.findOne({ _id: postId })
+        .then(
+            (post) => {
+                // post must exist
+                if (!post) {
+                    throw {
+                        code: 404,
+                        error: 'No post with ID ' + postId
+                    };
+                }
+                // post must belong to authenticated user
+                if (post.userId != request.auth.userId) {
+                    throw {
+                        code: 401,
+                        error: 'Post with ID ' + postId + ' belongs to another user.'
+                    };
+                }
+                // perform deletion
+                return Post.deleteOne({ _id: postId });
+            }
+        ).then(
+            (_deletionResult) => {
+                return response.status(200).json({
                     message: 'Deleted post successfully.',
                     id: postId
                 });
-            });
+            }
+        ).catch(
+            (e) => {
+                return response.status(e.code).json({
+                    message: e.error,
+                    post: null
+                }); 
+            }
+        );
     }
 );
 

@@ -2,9 +2,12 @@
     <div>My Post App</div>
     <div class="links">
         <a mat-button [routerLink]="'/list'" routerLinkActive="active-link"> Posts </a>
-        <a *ngIf="loggedIn" mat-button [routerLink]="'/create'" routerLinkActive="active-link"> Create post </a>
-        <a *ngIf="!loggedIn" mat-button [routerLink]="'/login'" routerLinkActive="active-link"> Login </a>
-        <a *ngIf="!loggedIn" mat-button [routerLink]="'/signup'" routerLinkActive="active-link"> Signup </a>
-        <button *ngIf="loggedIn" class="mat-button" (click)="onLogout()">Logout</button>
+        <a *ngIf="loggedInUser != null" mat-button [routerLink]="'/create'" routerLinkActive="active-link"> Create post </a>
+        <a *ngIf="loggedInUser == null" mat-button [routerLink]="'/login'" routerLinkActive="active-link"> Login </a>
+        <a *ngIf="loggedInUser == null" mat-button [routerLink]="'/signup'" routerLinkActive="active-link"> Signup </a>
+        <button *ngIf="loggedInUser != null" class="mat-button" (click)="onLogout()">Logout</button>
     </div>
 </mat-toolbar>
+<div *ngIf="loggedInUser != null" class="loggedAs">
+    <div>[ logged in as {{loggedInUser.username}} ]</div>
+</div>
