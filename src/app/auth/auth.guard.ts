@@ -21,7 +21,7 @@ export class AuthGuard implements CanActivate {
   canActivate(next: ActivatedRouteSnapshot,
               state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
 
-    // redirect to login if not authenticated      
+    // redirect to login if not authenticated
     console.log('Auth interceptor checks auth for requested route');
     if (!this.authService.getToken()) {
       console.error('Authentication was not verified, access denied');
@@ -43,7 +43,7 @@ export class AuthGuard implements CanActivate {
       return this.postService.getPostObservable(next.params.id).pipe(
         map(
           (post: Post) => {
-            if (post.userId != loggedInUser.id) {
+            if (post.userId !== loggedInUser.id) {
               console.error('Can only edit posts belonging to authenticated user, access denied');
               this.router.navigate(['list']);
               return false;   // optional, since we already navigate away

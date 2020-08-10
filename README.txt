@@ -110,7 +110,7 @@ START THE APP
 
   $> npm install              // install locally modules from package.json
   $> nodemon server.js        // start backend
-  $> ng serve -o              // start frontend 
+  $> ng serve -o              // start frontend
 
 
 ANGULAR
@@ -172,4 +172,5 @@ Angular Material
     ~ MatButtonModule for buttons
     ~ MatCardModule for card container components
     ~ MatExpansionModule for expansible components
+    ~ MatDialogModule for dynamic popups
  - input components must be wrapped into <mat-form-field> and get the matInput property.

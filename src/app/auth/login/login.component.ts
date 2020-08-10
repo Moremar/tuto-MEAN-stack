@@ -1,6 +1,8 @@
+// Angular imports
 import { Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
-
+import { Router } from '@angular/router';
+// Internal imports
 import { AuthService } from '../auth.service';
 
 
@@ -12,8 +14,10 @@ import { AuthService } from '../auth.service';
 export class LoginComponent implements OnInit {
 
   loading = false;
+  errorMessage: string = null;
 
-  constructor(private authService: AuthService) { }
+  constructor(private router: Router,
+              private authService: AuthService) { }
 
   ngOnInit() {
   }
@@ -22,10 +26,24 @@ export class LoginComponent implements OnInit {
     if (loginForm.invalid) {
       return;
     }
+
+    // display the spinner during the login HTTP call
+    this.errorMessage = null;
+    this.loading = true;
+
     const email = loginForm.value.email;
     const password = loginForm.value.password;
     console.log('Trying to login with ' + email + '/' + password);
 
-    this.authService.login(email, password);
+    this.authService.login(email, password).subscribe(
+      (_: boolean) => {
+        this.loading = false;
+        this.router.navigate(['list']);
+      },
+      (e: Error) => {
+        this.errorMessage = e.message;
+        this.loading = false;
+      }
+    );
   }
 }

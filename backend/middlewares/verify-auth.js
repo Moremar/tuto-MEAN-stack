@@ -21,10 +21,10 @@ module.exports = (request, result, next) => {
         const token = request.headers.authorization.split(" ")[1];
 
         // ensure it is not altered (throw if error)
-        jwt.verify(token, SECRET_JWT_ENCRYPTION_KEY);
+        const decodedToken = jwt.verify(token, SECRET_JWT_ENCRYPTION_KEY);
 
         // enrich the request with the auth info
-        request.auth = jwt.decode(token);
+        request.auth = decodedToken;
 
         // token is valid, continue to the next middleware
         next();

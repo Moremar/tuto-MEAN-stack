@@ -1,11 +1,9 @@
 // Angular imports
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Router, ActivatedRoute, ParamMap } from '@angular/router';
-import { Subscription } from 'rxjs';
 // Internal imports
 import { Post } from '../model/post.model';
-import { User } from '../../auth/model/user.model';
 import { PostService } from '../post.service';
 import { AuthService } from 'src/app/auth/auth.service';
 import { mimeType } from './mime-type.validator';
@@ -16,10 +14,7 @@ import { mimeType } from './mime-type.validator';
     templateUrl: './post-create.component.html',
     styleUrls: ['./post-create.component.css']
 })
-export class PostCreateComponent implements OnInit, OnDestroy {
-
-  private loggedInUser: User = null;
-  private loggedInUserSub: Subscription = null;
+export class PostCreateComponent implements OnInit {
 
   // if we are in editing mode, this is the post being edited, else it is a new post
   private editedPost: Post = new Post(null, null, null, null, null, null);
@@ -45,13 +40,6 @@ export class PostCreateComponent implements OnInit, OnDestroy {
 
 
   ngOnInit() {
-    // retrieve the logged user (this page is only accessible to logged users)
-    this.loggedInUserSub = this.authService.loggedInUserListener.subscribe(
-      (user) => {
-        this.loggedInUser = user;
-      }
-    );
-
     // create the form
     this.postForm = new FormGroup({
       title: new FormControl(null, {validators: [Validators.required, Validators.minLength(3)]}),
@@ -81,13 +69,6 @@ export class PostCreateComponent implements OnInit, OnDestroy {
         });
       }
     });
-  }
-
-
-  ngOnDestroy() {
-    if (this.loggedInUserSub) {
-      this.loggedInUserSub.unsubscribe();
-    }
   }
 
 

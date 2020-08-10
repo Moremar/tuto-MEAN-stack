@@ -3,6 +3,17 @@ mat-spinner {
     margin: auto;
 }
 
+.errorMessage {
+    background-color: #fdd;
+    border: #a00 1px solid;
+    color: #a00;
+    margin: 10px 0;
+}
+
+.form {
+    border: #ccc 1px solid;
+}
+
 h3 {
     color: #333;
 }

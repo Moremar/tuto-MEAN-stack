@@ -1,8 +1,9 @@
 // Angular imports
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 // Internal imports
 import { User } from './model/user.model';
 import { Credentials } from './model/credentials.model';
@@ -42,28 +43,34 @@ export class AuthService {
   }
 
 
-  signup(username: string, email: string, password: string) {
+  signup(username: string, email: string, password: string): Observable<boolean> {
     const credentials = new Credentials(username, email, password);
-    this.http.post<RestPostAuthSignupResponse>(this.AUTH_URL + '/signup', credentials).subscribe(
-      (signupResponse: RestPostAuthSignupResponse) => {
-        console.log(signupResponse);
-        console.log('You are signed up now !');
-        // automatically login the new created user
-        this.login(email, password);
-      },
-      (errorResponse: RestPostAuthSignupResponse) => {
-        console.log(errorResponse);
-        console.log('You are not signed up !');
-      }
+    return this.http.post<RestPostAuthSignupResponse>(this.AUTH_URL + '/signup', credentials)
+    .pipe(
+      // transform the result on success to hide the HTTP details
+      map(
+        (_: RestPostAuthSignupResponse) => {
+          console.log('Signup successful');
+          return true;
+        }
+      ),
+      // transform the error to only show the error message
+      catchError(
+        (errorResponse: HttpErrorResponse) => {
+          console.log('Signup failed');
+          throw new Error(errorResponse.error.message);
+        }
+      )
     );
   }
 
 
-  login(email: string, password: string) {
+  login(email: string, password: string): Observable<boolean> {
     const credentials = new Credentials(null, email, password);
-    this.http.post<RestPostAuthLoginResponse>(this.AUTH_URL + '/login', credentials).subscribe(
+    return this.http.post<RestPostAuthLoginResponse>(this.AUTH_URL + '/login', credentials)
+    .pipe(map(
       (loginResponse: RestPostAuthLoginResponse) => {
-        console.log(loginResponse);
+        console.log('Login successful');
 
         // store the token in local storage and in memory
         // it is attached to all requests needing authentication by the auth-interceptor
@@ -71,13 +78,16 @@ export class AuthService {
         const userData = new StoredUserData(user, loginResponse.token, loginResponse.expiresIn);
         this._saveTokenInStorage(userData);
         this.autoLogin();
-        this.router.navigate(['list']);
-      },
-
-      (errorResponse: RestPostAuthLoginResponse) => {
-        console.error('Failed to login :');
-        console.error(errorResponse);
+        return true;
       }
+    ),
+      // transform the error to only show the error message
+      catchError(
+        (errorResponse: HttpErrorResponse) => {
+          console.log('Login failed');
+          throw new Error(errorResponse.error.message);
+        }
+      )
     );
   }
 
@@ -136,7 +146,7 @@ export class AuthService {
     }
     const expirationDate: Date = new Date(expirationDateStr);
     const now: Date = new Date();
-    return new StoredUserData(new User(userId, username, email), token, expirationDate.getTime() - now.getTime())
+    return new StoredUserData(new User(userId, username, email), token, expirationDate.getTime() - now.getTime());
   }
 
 

@@ -1,8 +1,12 @@
 <mat-spinner *ngIf="loading"></mat-spinner>
 
-<mat-card *ngIf="!loading">
+<mat-card class="errorMessage" *ngIf="errorMessage != null">
+    <p>{{errorMessage}}</p>
+</mat-card>
+
+<mat-card class="form" *ngIf="!loading">
     <h3 class="mat-title">Create an account</h3>
-    <form (submit)="onLogin(signupForm)" #signupForm="ngForm">
+    <form (submit)="onSignup(signupForm)" #signupForm="ngForm">
         <!-- user name input -->
         <mat-form-field appearance="fill">
             <mat-label>Username</mat-label>
