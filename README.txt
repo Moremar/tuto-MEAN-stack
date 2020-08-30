@@ -95,10 +95,11 @@ SETUP
     $>  npm install --save mongoose-unique-validator
 
 - File upload
-  ~ Uploading files from Angular to Node.js requires Multer :
+  ~ Uploading files from Angular to Node.js requires Multer package in the Node code :
     $>  npm install --save multer
 
 - Password encryption
+  We use the bcrypt package to create a hash for user passwords :
     $>  npm install --save bcrypt
 
 - JWT (Json Web Token) for authentication tokens
@@ -143,6 +144,10 @@ grouped per API section into a router in a dedicated files and imported with app
   We use JWT (Json Web Token) for the tokens : https://jwt.io/
   The token is valid only a short period of time (1h here) and after expiration the user must login again.
 
+~ Controllers
+  In the routes files, we associate an endpoint URL with a middleware function to execute.
+  The middleware function can be anonymously defined directly in the routes file, or created
+  in a controller file and referenced in the routes file (to make it more readable).
 
 
 MongoDB

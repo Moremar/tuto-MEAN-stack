@@ -7,7 +7,7 @@ import { map, catchError } from 'rxjs/operators';
 // Internal imports
 import { User } from './model/user.model';
 import { Credentials } from './model/credentials.model';
-import { StoredUserData } from './model/StoredUserData.model';
+import { StoredUserData } from './model/storedUserData.model';
 import { RestPostAuthLoginResponse, RestPostAuthSignupResponse } from './model/rest-auth.model';
 
 
