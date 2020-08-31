@@ -2,7 +2,7 @@
 const express = require('express');
 
 // Internal imports
-const AuthController = require("../controllers/auth");
+const AuthController = require("../middlewares/auth");
 
 /*
  * All REST API routes for the /api/auth section

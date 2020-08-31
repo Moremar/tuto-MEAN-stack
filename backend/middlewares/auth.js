@@ -11,9 +11,9 @@ const SECRET_JWT_ENCRYPTION_KEY = "very_long_string_JWT_uses_for_encrypting_toke
 
 
 /*
- * This controller groups all custom middleware used for auth related endpoints
+ * This controller groups all custom middlewares used for auth related endpoints
  * These middleware are called from the auth routes files (auth-routes.js)
- * We could instead use directly these functions in the routes file, but moving
+ * We could instead define directly these functions in the routes file, but moving
  * them to a dedicated controller file makes the routes file easier to read
  *
  * Notes :

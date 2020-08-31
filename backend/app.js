@@ -76,11 +76,11 @@ app.use('/api/auth', authRoutes);
 
 // Fallback middleware called when no other middleware could handle the request
 app.use(
-    (_request, response, _next) => {
-        console.log('Middleware: Not found');
-        // TODO we probably want 404 here but it causes a CORS error (expect ok status)
-        response.status(200).json({
-            message: 'No handler for this path.'
+    (request, response, _next) => {
+        const message = 'No middleware found to handle request URL ' + request.originalUrl;
+        console.log(message);
+        response.status(404).json({
+            message: message
         });
     }
 );
