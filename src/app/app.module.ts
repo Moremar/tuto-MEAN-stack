@@ -1,54 +1,46 @@
 // Angular imports
 import { BrowserModule } from '@angular/platform-browser';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { NgModule } from '@angular/core';
-import { MatInputModule, MatCardModule,
-         MatButtonModule, MatToolbarModule,
-         MatExpansionModule, MatProgressSpinnerModule,
-         MatPaginatorModule } from '@angular/material';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 // Internal imports
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HeaderComponent } from './header/header.component';
-import { PostCreateComponent } from './posts/post-create/post-create.component';
-import { PostListComponent } from './posts/post-list/post-list.component';
-import { LoginComponent } from './auth/login/login.component';
-import { SignupComponent } from './auth/signup/signup.component';
 import { AuthInterceptor } from './auth/auth-interceptor';
+import { AngularMaterialModule } from './angular-material.module';
+import { PostsModule } from './posts/posts.module';
+import { AuthModule } from './auth/auth.module';
 
+/**
+ * Main module of the app
+ * We could have all components declared in this single module (since the app is very small)
+ * but we created some feature-level modules like we would do for a real-world app :
+ *   - posts module
+ *   - auth module
+ * We also move all the Angular Material imports in a dedicated module
+ */
 
 @NgModule({
   declarations: [
     AppComponent,
-    HeaderComponent,
-    PostCreateComponent,
-    PostListComponent,
-    LoginComponent,
-    SignupComponent
+    HeaderComponent
   ],
   imports: [
     BrowserModule,
-    FormsModule,
-    ReactiveFormsModule,
     /* Custom routing for our app */
     AppRoutingModule,
-    /* Angular Material modules */
-    BrowserAnimationsModule,    /* added by : ng add @angular/material */
-    MatInputModule,
-    MatCardModule,
-    MatButtonModule,
-    MatToolbarModule,
-    MatExpansionModule,
-    MatProgressSpinnerModule,
-    MatPaginatorModule,
-    HttpClientModule
+    HttpClientModule,
+    /* Custom module grouping all Angular material modules */
+    AngularMaterialModule,
+    /* Custom module for all posts related logic */
+    PostsModule,
+    /* Custom module for auth operations */
+    AuthModule
   ],
   providers: [
     // register our Auth interceptor
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [ AppComponent ]
 })
 export class AppModule { }
