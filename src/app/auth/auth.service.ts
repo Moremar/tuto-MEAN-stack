@@ -9,6 +9,10 @@ import { User } from './model/user.model';
 import { Credentials } from './model/credentials.model';
 import { StoredUserData } from './model/storedUserData.model';
 import { RestPostAuthLoginResponse, RestPostAuthSignupResponse } from './model/rest-auth.model';
+import { environment } from 'src/environments/environment';
+
+
+const AUTH_URL = environment.backendUrl + '/auth';
 
 
 @Injectable({
@@ -21,8 +25,6 @@ export class AuthService {
 
   // timer to auto-logout on authentication token expiration
   private autoLogoutTimer: any = null;
-
-  private AUTH_URL = 'http://localhost:3000/api/auth';
 
 
   constructor(private http: HttpClient,
@@ -45,7 +47,7 @@ export class AuthService {
 
   signup(username: string, email: string, password: string): Observable<boolean> {
     const credentials = new Credentials(username, email, password);
-    return this.http.post<RestPostAuthSignupResponse>(this.AUTH_URL + '/signup', credentials)
+    return this.http.post<RestPostAuthSignupResponse>(AUTH_URL + '/signup', credentials)
     .pipe(
       // transform the result on success to hide the HTTP details
       map(
@@ -67,7 +69,7 @@ export class AuthService {
 
   login(email: string, password: string): Observable<boolean> {
     const credentials = new Credentials(null, email, password);
-    return this.http.post<RestPostAuthLoginResponse>(this.AUTH_URL + '/login', credentials)
+    return this.http.post<RestPostAuthLoginResponse>(AUTH_URL + '/login', credentials)
     .pipe(map(
       (loginResponse: RestPostAuthLoginResponse) => {
         console.log('Login successful');

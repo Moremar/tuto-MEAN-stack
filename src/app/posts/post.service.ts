@@ -1,7 +1,6 @@
 // Angular imports
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
 import { Observable, Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
 // Internal imports
@@ -9,6 +8,10 @@ import { Post } from './model/post.model';
 import { RestGetPostsResponse, RestPostPostResponse,
          RestPutPostResponse, RestDeletePostResponse,
          RestGetPostResponse } from './model/rest-posts.model';
+import { environment } from 'src/environments/environment';
+
+
+const POSTS_URL = environment.backendUrl + '/posts';
 
 
 @Injectable({
@@ -16,16 +19,11 @@ import { RestGetPostsResponse, RestPostPostResponse,
 })
 export class PostService {
 
-  private POSTS_URL = 'http://localhost:3000/api/posts';
-
-  // keep all posts in memory so we do not need to re-fetch all posts at every change
-
   // private Subjects to prevent to next() from outside this class
   private postsChanged = new Subject<Post[]>();    // give all posts to display when changed
   private totalPostsObs = new Subject<number>();    // give the total number of posts
 
-  constructor(private http: HttpClient,
-              private router: Router) {}
+  constructor(private http: HttpClient) {}
 
 
   // postsChanged is private, so we only expose an observable version of it (that cannot call next())
@@ -40,7 +38,7 @@ export class PostService {
 
   // get an observable on a specific post in the backend
   getPostObservable(postId: string): Observable<Post> {
-    return this.http.get<RestGetPostResponse>(this.POSTS_URL + '/' + postId)
+    return this.http.get<RestGetPostResponse>(POSTS_URL + '/' + postId)
         .pipe(
           map((restResponse: RestGetPostResponse) => {
             // convert to Frontend post format
@@ -65,10 +63,10 @@ export class PostService {
     postData.append('content', newPost.content);
     postData.append('image', image, newPost.title);
 
-    return this.http.post<RestPostPostResponse>(this.POSTS_URL, postData)
+    return this.http.post<RestPostPostResponse>(POSTS_URL, postData)
         .pipe(map(
           (restResponse: RestPostPostResponse) => {
-            console.log('Receiving from POST ' + this.POSTS_URL);
+            console.log('Receiving from POST ' + POSTS_URL);
             console.log(restResponse);
             // add the new post in the allPost array
             newPost.id = restResponse.post._id;
@@ -104,7 +102,7 @@ export class PostService {
         image);
     }
 
-    const url = this.POSTS_URL + '/' + editedPost.id;
+    const url = POSTS_URL + '/' + editedPost.id;
     return this.http.put<RestPutPostResponse>(url, postData)
         .pipe(map(
           (restResponse: RestPutPostResponse) => {
@@ -124,7 +122,7 @@ export class PostService {
   // delete a post in the backend and refresh the posts list
   deletePost(postId: string): Observable<string> {
     console.log('Deleting post ' + postId);
-    const url = this.POSTS_URL + '/' + postId;
+    const url = POSTS_URL + '/' + postId;
     return this.http.delete<RestDeletePostResponse>(url)
       .pipe(map(
         (restResponse: RestDeletePostResponse) => {
@@ -139,7 +137,7 @@ export class PostService {
   // refresh the posts list from the backend
   fetchPosts(pageIndex: number, pageSize: number): void {
     console.log('FETCHING ' + pageIndex + '/' + pageSize);
-    const url = this.POSTS_URL + '?pageIndex=' + pageIndex + '&pageSize=' + pageSize;
+    const url = POSTS_URL + '?pageIndex=' + pageIndex + '&pageSize=' + pageSize;
     this.http.get<RestGetPostsResponse>(url)
         .pipe(
           // reshape the data from the backend to turn it into a list of Post elements
