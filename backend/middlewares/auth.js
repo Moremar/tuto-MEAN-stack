@@ -5,10 +5,6 @@ const jwt = require('jsonwebtoken');
 // internal imports
 const User = require('../models/user'); // Mongoose model for MongoDB User collection
 
-// constants
-const BCRYPT_SALT = 10;
-const SECRET_JWT_ENCRYPTION_KEY = "very_long_string_JWT_uses_for_encrypting_tokens";
-
 
 /*
  * This controller groups all custom middlewares used for auth related endpoints
@@ -39,7 +35,7 @@ exports.signupUser = (request, response, _next) => {
         });
     }
 
-    bcrypt.hash(password, BCRYPT_SALT).then(
+    bcrypt.hash(password, process.env.BCRYPT_SALT).then(
         (hash) => {
             // check no other user with this email
             User.findOne({ email: email }).then(
@@ -108,8 +104,13 @@ exports.loginUser = (request, response, _next) => {
                 .then((bcryptValid) => {
                     if (bcryptValid) {
                         // generate a Web Token
-                        const jwtToken = jwt.sign({ userId: user._id, username: user.username, email: user.email },
-                            SECRET_JWT_ENCRYPTION_KEY, { expiresIn: "1h" }
+                        const jwtToken = jwt.sign(
+                            // object to include in the token
+                            { userId: user._id, username: user.username, email: user.email },
+                            // key for the JWT encryption
+                            process.env.JWT_ENCRYPTION_KEY,
+                            // token options
+                            { expiresIn: "1h" }
                         );
                         return response.status(200).json({
                             message: 'Login user successfully.',

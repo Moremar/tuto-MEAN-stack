@@ -62,7 +62,10 @@ SETUP
      $>  npm install -g nodemon
      $>  npm install --save-dev nodemon
   Then start the server with :
-     $>  nodemon server.js
+     $>  nodemon server.js --config nodemon.json
+  The nodemon.json file is used to pass some options to Nodemon.
+  In this app, we use it to pass some global variables, that would be different for dev or prod env.
+  This is done with the "env" options.
 
 - Express framework
      $>  npm install --save express
@@ -109,9 +112,9 @@ SETUP
 START THE APP
 -------------
 
-  $> npm install              // install locally modules from package.json
-  $> nodemon server.js        // start backend
-  $> ng serve -o              // start frontend
+  $> npm install                                 // install locally all modules from package.json
+  $> nodemon server.js --config nodemon.json     // start backend (nodemon.json for env variables)
+  $> ng serve -o                                 // start frontend
 
 
 ANGULAR

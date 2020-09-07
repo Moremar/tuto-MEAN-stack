@@ -11,8 +11,9 @@ const authRoutes = require('./routes/auth-routes');
 
 // Connect Mongoose to MongoDB
 const mongoUser = 'admin';
-const mongoPwd = '2CdjMdbZ6pchCAp';
-const mongoServer = 'cluster0.qsaef.mongodb.net';
+// Global variables injected from nodemon.json
+const mongoPwd = process.env.MONGO_ATLAS_PASSWORD;
+const mongoServer = process.env.MONGO_ATLAS_SERVER;
 const dbName = 'mean-app';
 mongoose.connect('mongodb+srv://' + mongoUser + ':' + mongoPwd + '@' + mongoServer + '/' + dbName)
     .then(() => {

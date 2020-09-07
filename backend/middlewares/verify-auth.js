@@ -10,9 +10,6 @@ const jwt = require('jsonwebtoken');
  * to the incoming request
  */
 
-// TODO duplicate of constant in auth-routes.js, need to factorize
-const SECRET_JWT_ENCRYPTION_KEY = "very_long_string_JWT_uses_for_encrypting_tokens";
-
 
 module.exports = (request, result, next) => {
     try {
@@ -20,8 +17,8 @@ module.exports = (request, result, next) => {
         // This header has the form "Bearer XXX" so we only want the XXX part
         const token = request.headers.authorization.split(" ")[1];
 
-        // ensure it is not altered (throw if error)
-        const decodedToken = jwt.verify(token, SECRET_JWT_ENCRYPTION_KEY);
+        // ensure it is not altered (throws if error)
+        const decodedToken = jwt.verify(token, process.env.JWT_ENCRYPTION_KEY);
 
         // enrich the request with the auth info
         request.auth = decodedToken;
