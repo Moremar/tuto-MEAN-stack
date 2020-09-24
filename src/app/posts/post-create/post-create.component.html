@@ -1,7 +1,7 @@
 <mat-spinner *ngIf="loading"></mat-spinner>
 
 <mat-card *ngIf="!loading">
-    <form (submit)="onSavePost(postForm)" [formGroup]="postForm">
+    <form (submit)="onSavePost()" [formGroup]="postForm">
         <!-- title input -->
         <mat-form-field appearance="fill">
             <mat-label>Post title</mat-label>
@@ -12,7 +12,7 @@
         <div class="uploadImageDiv">
             <!-- use a hidden default file picker, and click it when our custom button is clicked -->
             <button mat-stroked-button type="button" (click)="filePicker.click()">Choose image</button>
-            <input type="file" #filePicker (change)="onImageSelected($event)"/>
+            <input type="file" #filePicker (change)="onImageSelected($event)" />
             <div class="invalidImageError" *ngIf="mustValidate && postForm.controls.image.invalid">A post image is required.</div>
         </div>
         <div *ngIf="imagePreview != null && imagePreview != '' && postForm.controls.image.valid" class="preview">

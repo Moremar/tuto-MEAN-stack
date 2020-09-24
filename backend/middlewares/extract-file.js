@@ -26,7 +26,7 @@ const multerConfig = multer.diskStorage({
             // should never happen if the backend validated correctly
             error = new Error('Invalid MIME type');
         }
-        folder = 'backend/images'; // relative to server root
+        folder = 'images'; // relative to server root, which is inside /backend
         callback(error, folder);
     },
     filename: (_request, file, callback) => {

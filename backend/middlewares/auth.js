@@ -1,5 +1,5 @@
 // external imports
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 // internal imports
@@ -35,7 +35,8 @@ exports.signupUser = (request, response, _next) => {
         });
     }
 
-    bcrypt.hash(password, process.env.BCRYPT_SALT).then(
+    const salt = +process.env.BCRYPT_SALT; // stored as a string in the env variables
+    bcrypt.hash(password, salt).then(
         (hash) => {
             // check no other user with this email
             User.findOne({ email: email }).then(

@@ -35,8 +35,7 @@ export class PostCreateComponent implements OnInit {
 
   constructor(private router: Router,
               private activeRoute: ActivatedRoute,
-              private postService: PostService,
-              private authService: AuthService) {}
+              private postService: PostService) {}
 
 
   ngOnInit() {

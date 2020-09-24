@@ -14,7 +14,7 @@ const mongoUser = 'admin';
 // Global variables injected from nodemon.json
 const mongoPwd = process.env.MONGO_ATLAS_PASSWORD;
 const mongoServer = process.env.MONGO_ATLAS_SERVER;
-const dbName = 'mean-app';
+const dbName = process.env.MONGO_DATABASE_NAME;
 mongoose.connect('mongodb+srv://' + mongoUser + ':' + mongoPwd + '@' + mongoServer + '/' + dbName)
     .then(() => {
         console.log("Connection to MongoDB succeeded.")
@@ -43,8 +43,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 
-// requests starting with /images serve files under backend/images
-app.use('/images', express.static(path.join("backend/images")));
+// requests starting with /images serve files under images
+app.use('/images', express.static(path.join("images")));
 
 
 // first custom middleware to apply some common headers

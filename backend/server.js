@@ -2,7 +2,7 @@
 const http = require('http');
 
 // Instance of our Express app
-const app = require('./backend/app');
+const app = require('./app');
 
 // use port 3000 by default (for dev phase) or on port specified in the config
 const port = process.env.PORT || 3000;

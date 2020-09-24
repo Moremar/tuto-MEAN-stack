@@ -1,8 +1,9 @@
 {
     "env": {
-        "MONGO_ATLAS_PASSWORD": "2CdjMdbZ6pchCAp",
-        "MONGO_ATLAS_SERVER": "cluster0.qsaef.mongodb.net",
+        "MONGO_ATLAS_SERVER": "<MONGO ATLAS SERVER>",
+        "MONGO_ATLAS_PASSWORD": "<MONGO ATLAS PASSWORD>",
+        "MONGO_DATABASE_NAME": "mean-app",
         "JWT_ENCRYPTION_KEY": "very_long_string_JWT_uses_for_encrypting_tokens",
-        "BCRYPT_SALT": 10
+        "BCRYPT_SALT": "10"
     }
 }
